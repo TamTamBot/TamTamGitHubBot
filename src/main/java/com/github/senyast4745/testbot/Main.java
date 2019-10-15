@@ -5,6 +5,8 @@ import chat.tamtam.botapi.exceptions.ClientException;
 import com.github.senyast4745.testbot.bot.TamTamBot;
 import com.github.senyast4745.testbot.bot.impl.TestTamTamBot;
 import com.github.senyast4745.testbot.server.BotServer;
+import org.kohsuke.github.GitHub;
+import org.kohsuke.github.GitHubBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

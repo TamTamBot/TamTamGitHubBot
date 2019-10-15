@@ -4,6 +4,7 @@ import chat.tamtam.botapi.client.impl.JacksonSerializer;
 import chat.tamtam.botapi.model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.senyast4745.testbot.bot.TamTamBot;
+import com.github.senyast4745.testbot.enums.GitHubConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +30,11 @@ public class BotServer implements Runnable {
             assert update != null;
             handleUpdate(update);
             log.info(request.body());
+            return "";
+        });
+        post("github", (request, response) ->{
+            String header = request.headers(GitHubConstants.GITHUB_EVENT_NAME_HEADER);
+            log.info("Github event " + header);
             return "";
         });
     }
