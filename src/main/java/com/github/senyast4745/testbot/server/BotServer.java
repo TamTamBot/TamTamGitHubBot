@@ -27,13 +27,13 @@ public class BotServer implements Runnable {
             JacksonSerializer serializer = new JacksonSerializer();
             Update update = serializer.deserialize(request.body(), Update.class);
             assert update != null;
-            invokeMethod(update);
+            handleUpdate(update);
             log.info(request.body());
             return "";
         });
     }
 
-    private void invokeMethod(Update update){
+    private void handleUpdate(Update update){
         switch (update.getType()) {
             case (Update.BOT_ADDED):
                 bot.onBotAddedToChat((BotAddedToChatUpdate) update);
