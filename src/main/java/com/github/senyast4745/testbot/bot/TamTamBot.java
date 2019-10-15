@@ -7,14 +7,14 @@ import chat.tamtam.botapi.model.*;
 
 public abstract class TamTamBot {
 
-    TamTamBotAPI bot;
+    private TamTamBotAPI bot;
 
     public TamTamBot(String serverURL, String token) throws ClientException, APIException {
         bot = TamTamBotAPI.create(token);
         bot.subscribe(new SubscriptionRequestBody(serverURL)).execute();
     }
 
-    public TamTamBotAPI getBot() {
+    protected TamTamBotAPI getBot() {
         return bot;
     }
 

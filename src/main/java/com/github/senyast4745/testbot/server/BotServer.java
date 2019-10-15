@@ -10,14 +10,14 @@ import org.slf4j.LoggerFactory;
 import static spark.Spark.port;
 import static spark.Spark.post;
 
-public class Server implements Runnable {
+public class BotServer implements Runnable {
 
     private TamTamBot bot;
-    public Server(TamTamBot bot) {
+    public BotServer(TamTamBot bot) {
         this.bot = bot;
     }
 
-    private final Logger log = LoggerFactory.getLogger(Server.class);
+    private final Logger log = LoggerFactory.getLogger(BotServer.class);
 
     @Override
     public void run() {
@@ -26,6 +26,7 @@ public class Server implements Runnable {
             log.info("I am here");
             JacksonSerializer serializer = new JacksonSerializer();
             Update update = serializer.deserialize(request.body(), Update.class);
+            assert update != null;
             invokeMethod(update);
             log.info(request.body());
             return "";

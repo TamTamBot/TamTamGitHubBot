@@ -13,9 +13,9 @@ import java.util.UUID;
 
 public class TestTamTamBot extends TamTamBot {
 
-    TamTamBotAPI bot;
+    private TamTamBotAPI bot;
 
-    Logger log = LoggerFactory.getLogger(TestTamTamBot.class);
+    private Logger log = LoggerFactory.getLogger(TestTamTamBot.class);
 
 
     public TestTamTamBot(String serverURL, String token) throws ClientException, APIException {
