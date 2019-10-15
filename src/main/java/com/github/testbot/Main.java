@@ -23,7 +23,6 @@ public class Main {
 
         Service server = Service.ignite();
         server.port(8080);
-        server.get("/", (request, response) ->  "From GET");
         server.post("/", (request, resp) -> {
             logger.info("I am here");
             JacksonSerializer serializer = new JacksonSerializer();
