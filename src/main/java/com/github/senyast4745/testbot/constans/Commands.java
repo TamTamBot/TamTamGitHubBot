@@ -1,10 +1,11 @@
-package com.github.senyast4745.testbot.enums;
+package com.github.senyast4745.testbot.constans;
 
 public enum Commands  {
 
     HELP ("help", "Help command"),
     SAY ("say", "Say hello"),
-    REG ("reg", "Reg command")
+    REG ("reg", "Reg command"),
+    NOT_FOUND ("", ""),
     ;
 
     private String commandName;

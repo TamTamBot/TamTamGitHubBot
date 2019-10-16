@@ -3,8 +3,11 @@ package com.github.senyast4745.testbot.server;
 import chat.tamtam.botapi.client.impl.JacksonSerializer;
 import chat.tamtam.botapi.model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.senyast4745.testbot.bot.NotifyClass;
 import com.github.senyast4745.testbot.bot.TamTamBot;
-import com.github.senyast4745.testbot.enums.GitHubConstants;
+import com.github.senyast4745.testbot.bot.impl.NotifyClassImpl;
+import com.github.senyast4745.testbot.constans.GitHubConstants;
+import com.github.senyast4745.testbot.models.GitHubCommitCommentEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,18 +17,24 @@ import static spark.Spark.post;
 public class BotServer implements Runnable {
 
     private TamTamBot bot;
+    private NotifyClass notifyClass;
     public BotServer(TamTamBot bot) {
         this.bot = bot;
+        notifyClass = new NotifyClassImpl();
     }
 
     private final Logger log = LoggerFactory.getLogger(BotServer.class);
+
+    private ObjectMapper mapper = new ObjectMapper();
+
+    private JacksonSerializer serializer = new JacksonSerializer();
 
     @Override
     public void run() {
         port(8080);
         post("/v1", (request, resp) -> {
             log.info("I am here");
-            JacksonSerializer serializer = new JacksonSerializer();
+
             Update update = serializer.deserialize(request.body(), Update.class);
             assert update != null;
             handleUpdate(update);
@@ -35,7 +44,11 @@ public class BotServer implements Runnable {
         post("github", (request, response) ->{
             String header = request.headers(GitHubConstants.GITHUB_EVENT_NAME_HEADER);
             log.info("Github event " + header);
-
+            if(header.equals("commit_comment")){
+                GitHubCommitCommentEvent commentEvent = serializer.deserialize(request.body(), GitHubCommitCommentEvent.class);
+                log.info("Commit comment " + commentEvent.toString());
+                notifyClass.onCommitComment(commentEvent);
+            }
             return "";
         });
     }
@@ -72,5 +85,9 @@ public class BotServer implements Runnable {
             case (Update.CHAT_TITLE_CHANGED):
                 bot.onChatTitleChanged((ChatTitleChangedUpdate) update);
         }
+    }
+
+    private void handleGitHub(String event, String requestBody){
+
     }
 }

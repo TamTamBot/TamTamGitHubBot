@@ -5,7 +5,7 @@ import chat.tamtam.botapi.exceptions.APIException;
 import chat.tamtam.botapi.exceptions.ClientException;
 import chat.tamtam.botapi.model.*;
 
-import com.github.senyast4745.testbot.enums.Callbacks;
+import com.github.senyast4745.testbot.constans.Callbacks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -10,6 +10,7 @@ import com.github.senyast4745.testbot.parsers.CommandParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -38,6 +39,8 @@ public class TestTamTamBot extends TamTamBot {
         } catch (APIException e) {
             e.printStackTrace();
         } catch (ClientException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         /*update.getMessage().getBody();

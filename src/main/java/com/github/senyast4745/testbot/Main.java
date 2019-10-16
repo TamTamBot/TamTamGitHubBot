@@ -4,6 +4,7 @@ import chat.tamtam.botapi.exceptions.APIException;
 import chat.tamtam.botapi.exceptions.ClientException;
 import com.github.senyast4745.testbot.bot.TamTamBot;
 import com.github.senyast4745.testbot.bot.impl.TestTamTamBot;
+import com.github.senyast4745.testbot.repos.GitHubUser;
 import com.github.senyast4745.testbot.server.BotServer;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
@@ -26,7 +27,7 @@ public class Main {
 
         TamTamBot bot = new TestTamTamBot(getProperty("server.bot.url"), getProperty("bot.token"));
 
-
+        GitHubUser.init();
         Thread t = new Thread(new BotServer(bot));
         t.start();
 

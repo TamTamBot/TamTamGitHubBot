@@ -4,15 +4,14 @@ import chat.tamtam.botapi.TamTamBotAPI;
 import chat.tamtam.botapi.exceptions.APIException;
 import chat.tamtam.botapi.exceptions.ClientException;
 import chat.tamtam.botapi.model.*;
-import com.github.senyast4745.testbot.enums.Commands;
+import com.github.senyast4745.testbot.constans.Commands;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public abstract class TamTamBot {
 
-    private TamTamBotAPI bot;
+    private static TamTamBotAPI bot;
 
     public TamTamBot(String serverURL, String token) throws ClientException, APIException {
         bot = TamTamBotAPI.create(token);
@@ -23,9 +22,10 @@ public abstract class TamTamBot {
                 new BotCommand("hello").description("Say Hello to World"));
         bot.editMyInfo(new BotPatch().name("MyBot")
                 .username("testGitBot").description("Test bot to Tam Tam").commands(commands)).execute();
+
     }
 
-    protected TamTamBotAPI getBot() {
+    protected static TamTamBotAPI getBot() {
         return bot;
     }
 
