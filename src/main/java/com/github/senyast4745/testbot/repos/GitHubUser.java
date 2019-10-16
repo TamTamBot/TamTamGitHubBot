@@ -9,6 +9,8 @@ import java.util.List;
 
 public class GitHubUser {
 
+    private static PostgresJDBCUtils jdbcUtils;
+
     private static final Logger log = LoggerFactory.getLogger(GitHubUser.class);
 
     private static final String createTableSQL = "create table if not exists users (\r\n" +
@@ -21,8 +23,8 @@ public class GitHubUser {
 
     public static void init() {
         try {
-
-            PostgresJDBCUtils.createTable(createTableSQL);
+            jdbcUtils = PostgresJDBCUtils.getInstance();
+            jdbcUtils.createTable(createTableSQL);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -30,7 +32,10 @@ public class GitHubUser {
 
     public static List<Long> getTamTamUser(String gitHubUserId) throws SQLException {
 
-         return PostgresJDBCUtils.executeQuery(String.format(selectTamTamUser, gitHubUserId));
+        if(jdbcUtils == null){
+            init();
+        }
+         return jdbcUtils.executeQuery(String.format(selectTamTamUser, gitHubUserId));
          /*long tamtamId = set.getLong(0);
          set.close();
          return tamtamId;
@@ -38,9 +43,13 @@ public class GitHubUser {
     }
 
     public static void insertNewTamTamUser(long tamTamUserId, String gitHubUserUd) throws SQLException {
+
+        if(jdbcUtils == null){
+            init();
+        }
         if (!getTamTamUser(gitHubUserUd).contains(tamTamUserId)) {
             log.info("INSERT NEW DATA");
-            PostgresJDBCUtils.executeUpdate(String.format(insertNewUser, tamTamUserId, gitHubUserUd));
+            jdbcUtils.executeUpdate(String.format(insertNewUser, tamTamUserId, gitHubUserUd));
         }
 
     }

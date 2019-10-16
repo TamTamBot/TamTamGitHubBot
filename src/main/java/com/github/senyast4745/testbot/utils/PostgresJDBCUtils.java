@@ -15,6 +15,7 @@ public class PostgresJDBCUtils {
     private static String jdbcUsername = "botdbuser";
     private static String jdbcPassword = "passwd";
 
+    private static volatile PostgresJDBCUtils instance;
 
     private static Connection getConnection() {
         Connection connection = null;
@@ -26,14 +27,16 @@ public class PostgresJDBCUtils {
         return connection;
     }
 
+    private PostgresJDBCUtils() {
+    }
 
-
-    public static void createTable(String createTableSQL) throws SQLException {
+    public void createTable(String createTableSQL) throws SQLException {
         executeUpdate(createTableSQL);
     }
 
 
-    public static List<Long> executeQuery(String SQLQuery) throws SQLException {
+    @SuppressWarnings("unchecked")
+    public <T> List<T> executeQuery(String SQLQuery) throws SQLException {
         log.info(SQLQuery);
         // Step 1: Establishing a Connection
         try (Connection connection = PostgresJDBCUtils.getConnection();
@@ -44,12 +47,13 @@ public class PostgresJDBCUtils {
 
             ResultSet set = statement.executeQuery(SQLQuery);
 
-            List<Long> repos = new ArrayList<>();
-            if(set.next()){
-                 repos.add(set.getLong(1));
-            } else {
-                set.close();
+            List<T> repos = new ArrayList<>();
+            while (set.next()) {
+
+                repos.add((T) set.getObject(1));
+//                 log.info ();
             }
+            set.close();
             return repos;
 
 
@@ -60,7 +64,7 @@ public class PostgresJDBCUtils {
         }
     }
 
-    public static void executeUpdate(String SQLQuery) throws SQLException {
+    public void executeUpdate(String SQLQuery) throws SQLException {
         log.info(SQLQuery);
         // Step 1: Establishing a Connection
         try (Connection connection = PostgresJDBCUtils.getConnection();
@@ -78,6 +82,19 @@ public class PostgresJDBCUtils {
         }
     }
 
+    public static PostgresJDBCUtils getInstance(){
+       PostgresJDBCUtils localInstance = instance;
+       if(localInstance == null){
+           synchronized (PostgresJDBCUtils.class){
+               localInstance = instance;
+               if(localInstance == null){
+                   localInstance = new PostgresJDBCUtils();
+                   instance = localInstance;
+               }
+           }
+       }
+       return localInstance;
+    }
 
 
 }
