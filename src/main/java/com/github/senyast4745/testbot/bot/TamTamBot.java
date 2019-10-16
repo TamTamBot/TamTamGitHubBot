@@ -9,6 +9,7 @@ import com.github.senyast4745.testbot.constans.Commands;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.github.senyast4745.testbot.constans.Commands.*;
 public abstract class TamTamBot {
 
     private static TamTamBotAPI bot;
@@ -17,8 +18,9 @@ public abstract class TamTamBot {
         bot = TamTamBotAPI.create(token);
         bot.subscribe(new SubscriptionRequestBody(serverURL)).execute();
         List<BotCommand> commands = Arrays.asList(
-                new BotCommand(Commands.HELP.getCommandName()).description(Commands.HELP.getCommandName()),
-                new BotCommand(Commands.REG.getCommandName()).description("registration"),
+                new BotCommand(HELP.getCommandName()).description(HELP.getCommandName()),
+                new BotCommand(REG.getCommandName()).description(REG.getDescription()),
+                new BotCommand(LIST.getCommandName()).description(LIST.getDescription()),
                 new BotCommand("hello").description("Say Hello to World"));
         bot.editMyInfo(new BotPatch().name("MyBot")
                 .username("testGitBot").description("Test bot to Tam Tam").commands(commands)).execute();

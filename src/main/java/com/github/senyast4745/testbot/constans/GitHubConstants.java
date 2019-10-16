@@ -27,6 +27,8 @@ public interface GitHubConstants {
 
     String GITHUB_EVENT_TYPE_PUSH = "push";
 
+    String GIT_HUB_ROOT_URL = "https://github.com/";
+
   /*  static <T extends GitHubEvent> String getNameForEventType(Class<T> eventType) {
         Objects.requireNonNull(eventType, "eventType should not be null!");
         if(eventType.equals(GitHubPushEvent.class)) {

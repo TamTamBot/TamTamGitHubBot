@@ -6,7 +6,9 @@ import chat.tamtam.botapi.exceptions.ClientException;
 import chat.tamtam.botapi.model.*;
 import com.github.senyast4745.testbot.constans.CommandStates;
 import com.github.senyast4745.testbot.constans.Commands;
-import com.github.senyast4745.testbot.repos.GitHubUser;
+import com.github.senyast4745.testbot.constans.GitHubConstants;
+import com.github.senyast4745.testbot.github.CustomHttpClient;
+import com.github.senyast4745.testbot.repository.UsersRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,19 +18,21 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import static com.github.senyast4745.testbot.constans.Callbacks.*;
-import static com.github.senyast4745.testbot.constans.CommandStates.DEFAULT;
-import static com.github.senyast4745.testbot.constans.CommandStates.REG_STATE;
+import static com.github.senyast4745.testbot.constans.CommandStates.*;
 
 public class CommandParser {
+
 
     private Logger log = LoggerFactory.getLogger(CommandParser.class);
 
     private TamTamBotAPI bot;
+    private CustomHttpClient httpClient;
 
-    ConcurrentMap<Long, CommandStates> chatState = new ConcurrentHashMap<>();
+    private ConcurrentMap<Long, CommandStates> chatState = new ConcurrentHashMap<>();
 
     public CommandParser(TamTamBotAPI bot) {
         this.bot = bot;
+        httpClient = new CustomHttpClient();
     }
 
     public void parseCommand(MessageCreatedUpdate update) throws APIException, ClientException, SQLException {
@@ -54,9 +58,13 @@ public class CommandParser {
                     help(chatId);
                     break;
                 case REG:
-                    chatState.put(senderId, REG_STATE);
+                    chatState.put(senderId, REG_STATE_1);
                     log.info("UPD " + update.toString());
                     registration(chatId);
+                    break;
+                case LIST:
+                    chatState.put(senderId, CommandStates.DEFAULT);
+                    list(chatId, senderId);
                     break;
                 default:
                     NewMessageLink link = new NewMessageLink(MessageLinkType.REPLY, update.getMessage().getBody().getMid());
@@ -70,12 +78,17 @@ public class CommandParser {
             }
         } else {
             switch (chatState.getOrDefault(senderId, CommandStates.DEFAULT)) {
-                case REG_STATE:
-                    GitHubUser.insertNewTamTamUser(update.getMessage().getSender().getUserId(),
-                            command);
+                case REG_STATE_1:
+                    if (httpClient.pingGithubRepo(command)) {
+                        UsersRepository.insertNewTamTamUser(update.getMessage().getSender().getUserId(),
+                                command);
 
-                    chatState.put(senderId, DEFAULT);
-                    sendSimpleMessage(chatId, "Added");
+                        chatState.put(senderId, DEFAULT);
+                        sendSimpleMessage(chatId, "Added");
+                    }
+                    sendSimpleMessage(chatId, "Sorry, something " +
+                            "went wrong when adding repository \"" + command + "\". Check the name is correct" +
+                            " and is webhooks are enabled for our repository");
                     break;
                 default:
                     help(chatId);
@@ -94,11 +107,27 @@ public class CommandParser {
     }
 
     private void registration(long chatId) throws ClientException, APIException {
-        sendSimpleMessage(chatId,"Enter full GitHub repository name");
+
+        sendSimpleMessage(chatId, "Enter full GitHub repository name");
+    }
+
+    private void list(long chatId, long userId) throws SQLException, APIException, ClientException {
+        StringBuilder builder = new StringBuilder("List of your connected repositories:\n\r");
+        UsersRepository.getGitHubRepositories(userId).forEach(repos -> {
+            repos = repos.replace("%EF%BB%BF", "");
+            log.info("REPO " + repos);
+            builder.append("name: ").append(repos).append("\n\r  url: ")
+                    .append(GitHubConstants.GIT_HUB_ROOT_URL).append(repos).append("\n\r");
+        });
+        builder.append("To add new repositories use command /reg");
+        log.info("LIST " + builder.toString());
+        sendSimpleMessage(chatId, builder.toString());
     }
 
     private void sendSimpleMessage(long chatId, String message) throws ClientException, APIException {
         bot.sendMessage(new NewMessageBody(message, null, null))
                 .chatId(chatId).execute();
     }
+
+
 }

@@ -5,7 +5,7 @@ import chat.tamtam.botapi.exceptions.ClientException;
 import chat.tamtam.botapi.model.NewMessageBody;
 import com.github.senyast4745.testbot.bot.NotifyClass;
 import com.github.senyast4745.testbot.models.GitHubCommitCommentEvent;
-import com.github.senyast4745.testbot.repos.GitHubUser;
+import com.github.senyast4745.testbot.repository.UsersRepository;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -15,7 +15,7 @@ public class NotifyClassImpl extends NotifyClass {
     public void onCommitComment(GitHubCommitCommentEvent comment) {
         NewMessageBody body = new NewMessageBody(comment.toString(), null, null);
         try {
-            List<Long> ids = GitHubUser.getTamTamUser(
+            List<Long> ids = UsersRepository.getTamTamUser(
                     comment.getComment().getUser().getLogin());
             ids.forEach(id -> {
                 try {

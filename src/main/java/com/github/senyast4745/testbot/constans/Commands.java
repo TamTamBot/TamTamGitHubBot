@@ -5,6 +5,7 @@ public enum Commands  {
     HELP ("help", "Help command"),
     SAY ("say", "Say hello"),
     REG ("reg", "Reg command"),
+    LIST ("list", "list of your connected GitHub repositories"),
     NOT_FOUND ("", ""),
     ;
 

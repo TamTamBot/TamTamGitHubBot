@@ -11,13 +11,22 @@ public class PostgresJDBCUtils {
 
     private static Logger log = LoggerFactory.getLogger(PostgresJDBCUtils.class);
 
-    private static String jdbcURL = "jdbc:postgresql://localhost:5432/testgithub";
-    private static String jdbcUsername = "botdbuser";
-    private static String jdbcPassword = "passwd";
+//    private static String jdbcURL = "jdbc:postgresql://localhost:5432/testgithub";
+    private final String jdbcURL;
+//    private static String jdbcUsername = "botdbuser";
+    private final String jdbcUsername;
+//    private static String jdbcPassword = "passwd";
+    private final  String jdbcPassword;
 
     private static volatile PostgresJDBCUtils instance;
 
-    private static Connection getConnection() {
+    private PostgresJDBCUtils(String jdbcURL, String jdbcUsername, String jdbcPassword) {
+        this.jdbcURL = jdbcURL;
+        this.jdbcUsername = jdbcUsername;
+        this.jdbcPassword = jdbcPassword;
+    }
+
+    private Connection getConnection() {
         Connection connection = null;
         try {
             connection = DriverManager.getConnection(jdbcURL, jdbcUsername, jdbcPassword);
@@ -27,8 +36,6 @@ public class PostgresJDBCUtils {
         return connection;
     }
 
-    private PostgresJDBCUtils() {
-    }
 
     public void createTable(String createTableSQL) throws SQLException {
         executeUpdate(createTableSQL);
@@ -39,7 +46,7 @@ public class PostgresJDBCUtils {
     public <T> List<T> executeQuery(String SQLQuery) throws SQLException {
         log.info(SQLQuery);
         // Step 1: Establishing a Connection
-        try (Connection connection = PostgresJDBCUtils.getConnection();
+        try (Connection connection = getConnection();
              // Step 2:Create a statement using connection object
              Statement statement = connection.createStatement();) {
 
@@ -67,7 +74,7 @@ public class PostgresJDBCUtils {
     public void executeUpdate(String SQLQuery) throws SQLException {
         log.info(SQLQuery);
         // Step 1: Establishing a Connection
-        try (Connection connection = PostgresJDBCUtils.getConnection();
+        try (Connection connection = getConnection();
              // Step 2:Create a statement using connection object
              Statement statement = connection.createStatement();) {
 
@@ -82,13 +89,13 @@ public class PostgresJDBCUtils {
         }
     }
 
-    public static PostgresJDBCUtils getInstance(){
+    public static PostgresJDBCUtils getInstance(String jdbcUrl, String jdbcUser, String jdbcPassword){
        PostgresJDBCUtils localInstance = instance;
        if(localInstance == null){
            synchronized (PostgresJDBCUtils.class){
                localInstance = instance;
                if(localInstance == null){
-                   localInstance = new PostgresJDBCUtils();
+                   localInstance = new PostgresJDBCUtils(jdbcUrl, jdbcUser,  jdbcPassword);
                    instance = localInstance;
                }
            }
