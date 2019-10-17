@@ -102,6 +102,8 @@ public class BotServer implements Runnable {
                 GitHubCommitCommentEvent commitCommentEvent = serializer.deserialize(requestBody, GitHubCommitCommentEvent.class);
                 notifyClass.onCommitComment(commitCommentEvent);
                 break;
+            default:
+                log.info("Unknown command " + events.name());
         }
 
     }
