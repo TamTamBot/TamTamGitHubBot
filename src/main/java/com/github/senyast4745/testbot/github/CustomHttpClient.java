@@ -25,9 +25,6 @@ public class CustomHttpClient {
 
     public boolean pingGithubRepo(String fullName) throws IOException {
 
-        GitHub gitHub = GitHubBuilder.fromCredentials().withConnector(OkHttp3Connector.DEFAULT)
-                .withPassword("senyast4745", "senyasdt4745").build();
-        GHAuthorization authorization = gitHub.createToken(Collections.singleton("admin"), "webhoocks", "jdjd");
 
         return true;
 
