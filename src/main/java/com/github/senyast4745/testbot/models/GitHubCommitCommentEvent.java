@@ -18,7 +18,7 @@ public class GitHubCommitCommentEvent implements CanSandedToSubscriber {
     @Override
     public String toString() {
         return "Comment to commit " + comment.getHtmlUrl() + " " +
-                action + "\n\rComment: \"" + comment.getBody() + "\" by user " +
-                comment.getUser().getLogin() + " to repository " + repository.getFullName();
+                action + "\n\rComment: \"" + comment.getBody() + "\"\n\rBy user " +
+                comment.getUser().getLogin() + "\n\rTo repository " + repository.getFullName();
     }
 }
