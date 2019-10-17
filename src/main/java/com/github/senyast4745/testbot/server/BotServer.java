@@ -48,11 +48,6 @@ public class BotServer implements Runnable {
             String header = request.headers(GitHubConstants.GITHUB_EVENT_NAME_HEADER);
             log.info("Github event " + header);
             handleGitHub(header, request.body());
-            if(header.equals("commit_comment")){
-                GitHubCommitCommentEvent commentEvent = serializer.deserialize(request.body(), GitHubCommitCommentEvent.class);
-                log.info("Commit comment " + commentEvent.toString());
-                notifyClass.onCommitComment(commentEvent);
-            }
             return "";
         });
     }
@@ -101,6 +96,11 @@ public class BotServer implements Runnable {
         switch (events){
             case PUSH:
                 GitHubPushEvent pushEvent = serializer.deserialize(requestBody, GitHubPushEvent.class);
+                notifyClass.onPush(pushEvent);
+                break;
+            case COMMIT_COMMENT:
+                GitHubCommitCommentEvent commitCommentEvent = serializer.deserialize(requestBody, GitHubCommitCommentEvent.class);
+                notifyClass.onCommitComment(commitCommentEvent);
                 break;
         }
 
