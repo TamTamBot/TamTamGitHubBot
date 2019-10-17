@@ -20,6 +20,7 @@ public class GitHubPullRequestEvent implements GitHubEvents {
 
     @Override
     public String toString() {
-        return "Pull request\n\rAction " + action + "\n\r" + pullRequest.toString();
+        return "Pull request\n\rAction " + action + "\n\r" + pullRequest.toString() + "\n\rBy user: "
+                + sender.getLogin() +"\n\rTo repository: " + repository.getFullName();
     }
 }
