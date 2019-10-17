@@ -10,6 +10,7 @@ import com.github.senyast4745.testbot.bot.impl.NotifyClassImpl;
 import com.github.senyast4745.testbot.constans.GitHubConstants;
 import com.github.senyast4745.testbot.constans.GitHubEvents;
 import com.github.senyast4745.testbot.models.GitHubCommitCommentEvent;
+import com.github.senyast4745.testbot.models.GitHubCreateEvent;
 import com.github.senyast4745.testbot.models.GitHubPullRequestEvent;
 import com.github.senyast4745.testbot.models.GitHubPushEvent;
 import org.slf4j.Logger;
@@ -96,6 +97,10 @@ public class BotServer implements Runnable {
         } catch (IllegalArgumentException ignore) {
         }
         switch (events) {
+            case CREATE:
+                GitHubCreateEvent createEvent = serializer.deserialize(requestBody, GitHubCreateEvent.class);
+                notifyClass.defaultEvent(createEvent);
+                break;
             case PUSH:
                 GitHubPushEvent pushEvent = serializer.deserialize(requestBody, GitHubPushEvent.class);
                 notifyClass.onPush(pushEvent);
