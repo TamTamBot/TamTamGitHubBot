@@ -89,7 +89,7 @@ public class BotServer implements Runnable {
     private void handleGitHub(String event, String requestBody) throws SerializationException {
         GitHubEvents events = GitHubEvents.DEFAULT;
         try{
-            events = GitHubEvents.valueOf(event);
+            events = GitHubEvents.valueOf(event.toUpperCase());
         } catch (IllegalArgumentException ignore){
         }
 
