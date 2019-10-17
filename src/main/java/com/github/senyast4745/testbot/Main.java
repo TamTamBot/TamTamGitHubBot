@@ -6,15 +6,17 @@ import com.github.senyast4745.testbot.bot.TamTamBot;
 import com.github.senyast4745.testbot.bot.impl.TestTamTamBot;
 import com.github.senyast4745.testbot.repository.UsersRepository;
 import com.github.senyast4745.testbot.server.BotServer;
+import org.kohsuke.github.GHAuthorization;
+import org.kohsuke.github.GitHub;
+import org.kohsuke.github.GitHubBuilder;
+import org.kohsuke.github.extras.OkHttp3Connector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
+import java.net.URL;
+import java.util.*;
 
 public class Main {
 

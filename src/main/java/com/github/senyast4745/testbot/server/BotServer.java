@@ -1,13 +1,16 @@
 package com.github.senyast4745.testbot.server;
 
 import chat.tamtam.botapi.client.impl.JacksonSerializer;
+import chat.tamtam.botapi.exceptions.SerializationException;
 import chat.tamtam.botapi.model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.senyast4745.testbot.bot.NotifyClass;
 import com.github.senyast4745.testbot.bot.TamTamBot;
 import com.github.senyast4745.testbot.bot.impl.NotifyClassImpl;
 import com.github.senyast4745.testbot.constans.GitHubConstants;
+import com.github.senyast4745.testbot.constans.GitHubEvents;
 import com.github.senyast4745.testbot.models.GitHubCommitCommentEvent;
+import com.github.senyast4745.testbot.models.GitHubPushEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +47,7 @@ public class BotServer implements Runnable {
         post("github", (request, response) ->{
             String header = request.headers(GitHubConstants.GITHUB_EVENT_NAME_HEADER);
             log.info("Github event " + header);
+            handleGitHub(header, request.body());
             if(header.equals("commit_comment")){
                 GitHubCommitCommentEvent commentEvent = serializer.deserialize(request.body(), GitHubCommitCommentEvent.class);
                 log.info("Commit comment " + commentEvent.toString());
@@ -87,7 +91,18 @@ public class BotServer implements Runnable {
         }
     }
 
-    private void handleGitHub(String event, String requestBody){
+    private void handleGitHub(String event, String requestBody) throws SerializationException {
+        GitHubEvents events = GitHubEvents.DEFAULT;
+        try{
+            events = GitHubEvents.valueOf(event);
+        } catch (IllegalArgumentException ignore){
+        }
+
+        switch (events){
+            case PUSH:
+                GitHubPushEvent pushEvent = serializer.deserialize(requestBody, GitHubPushEvent.class);
+                break;
+        }
 
     }
 }

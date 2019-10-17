@@ -4,11 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.kohsuke.github.GHCommit;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Getter
 @Setter
 public class GitHubCommitModel {
+
     private String url;
     private String sha;
     @JsonProperty("html_url")
@@ -22,6 +24,7 @@ public class GitHubCommitModel {
 
 @Getter
 @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 class Commit {
     private String url;
     private CommitAuthor author;
@@ -29,6 +32,7 @@ class Commit {
 
 @Getter
 @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 class CommitAuthor{
     private String name;
     private String email;

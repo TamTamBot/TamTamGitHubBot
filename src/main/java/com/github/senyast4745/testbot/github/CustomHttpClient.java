@@ -2,13 +2,20 @@ package com.github.senyast4745.testbot.github;
 
 import com.github.senyast4745.testbot.constans.GitHubConstants;
 import okhttp3.OkHttpClient;
+import okhttp3.OkUrlFactory;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.kohsuke.github.GHAuthorization;
 import org.kohsuke.github.GHIssueSearchBuilder;
+import org.kohsuke.github.GitHub;
+import org.kohsuke.github.GitHubBuilder;
+import org.kohsuke.github.extras.OkHttp3Connector;
+import org.kohsuke.github.extras.OkHttpConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Collections;
 
 public class CustomHttpClient {
 
@@ -16,8 +23,15 @@ public class CustomHttpClient {
 
     private Logger log = LoggerFactory.getLogger(CustomHttpClient.class);
 
-    public boolean pingGithubRepo(String fullName){
-        Request request = new Request.Builder().url(GitHubConstants.GIT_HUB_ROOT_URL + "/repos" + fullName + "/hooks")
+    public boolean pingGithubRepo(String fullName) throws IOException {
+
+        GitHub gitHub = GitHubBuilder.fromCredentials().withConnector(OkHttp3Connector.DEFAULT)
+                .withPassword("senyast4745", "senyasdt4745").build();
+        GHAuthorization authorization = gitHub.createToken(Collections.singleton("admin"), "webhoocks", "jdjd");
+
+        return true;
+
+       /* Request request = new Request.Builder().url(GitHubConstants.GIT_HUB_ROOT_URL + "/repos" + fullName + "/hooks")
                 .addHeader("User-Agent", "TamTam-GitHub Bot").build();
         try (Response response = client.newCall(request).execute()) {
             switch (response.code() / 100){
@@ -45,7 +59,7 @@ public class CustomHttpClient {
             e.printStackTrace();
         }
         //FIXME
-        return true;
+        return true;*/
 //        return false;
     }
 }

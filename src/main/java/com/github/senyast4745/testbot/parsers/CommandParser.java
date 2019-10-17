@@ -12,6 +12,7 @@ import com.github.senyast4745.testbot.repository.UsersRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,7 +36,7 @@ public class CommandParser {
         httpClient = new CustomHttpClient();
     }
 
-    public void parseCommand(MessageCreatedUpdate update) throws APIException, ClientException, SQLException {
+    public void parseCommand(MessageCreatedUpdate update) throws APIException, ClientException, SQLException, IOException {
         String command = update.getMessage().getBody().getText();
         Long chatId = update.getMessage().getRecipient().getChatId();
         Long senderId = update.getMessage().getSender().getUserId();

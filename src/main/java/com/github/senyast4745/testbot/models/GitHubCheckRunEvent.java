@@ -1,18 +1,19 @@
 package com.github.senyast4745.testbot.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 @Getter
 @Setter
-@JsonIgnoreProperties(ignoreUnknown = true)
 @ToString
-public class GitHubCommitCommentEvent implements CanSandedToSubscriber {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class GitHubCheckRunEvent implements CanSandedToSubscriber {
     private String action;
-    private GitHubCommentModel comment;
+    @JsonProperty("check_run")
+    private GitHubCheckRunModel checkRun;
     private GitHubRepositoryModel repository;
-    private GitHubUserModel owner;
-
+    private GitHubUserModel sender;
 }

@@ -9,16 +9,29 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Getter
 @Setter
-public class GitHubPushEvent {
+public class GitHubPushEvent implements CanSandedToSubscriber {
     private boolean force;
     private List<GitHubCommitModel> commits;
+    private GitHubRepositoryModel repository;
+    private PushAuthor pusher;
     private GitHubUserModel sender;
+
+    @Getter
+    @Setter
+    private static
+    class PushAuthor {
+        private String name;
+        private String email;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder toString = new StringBuilder("Push to ").append(repository.getFullName()).append("\n\r Commits:\n\r");
+        commits.forEach(c -> toString.append("sha: ").append(c.getSha()).append("\n\r"));
+        toString.append("Pusher name ").append(pusher.getName()).append(" email ").append(pusher.getEmail());
+        return toString.toString();
+    }
 }
 
-@Getter
-@Setter
-class PushAuthor{
-    private String name;
-    private String email;
-}
+
 
