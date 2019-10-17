@@ -2,6 +2,7 @@ package com.github.senyast4745.testbot.bot.impl;
 
 import chat.tamtam.botapi.exceptions.APIException;
 import chat.tamtam.botapi.exceptions.ClientException;
+import chat.tamtam.botapi.model.AttachmentRequest;
 import chat.tamtam.botapi.model.NewMessageBody;
 import chat.tamtam.botapi.model.NewMessageLink;
 import com.github.senyast4745.testbot.bot.NotifyClass;
@@ -12,6 +13,7 @@ import com.github.senyast4745.testbot.models.GitHubRepositoryModel;
 import com.github.senyast4745.testbot.repository.UsersRepository;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class NotifyClassImpl extends NotifyClass {
