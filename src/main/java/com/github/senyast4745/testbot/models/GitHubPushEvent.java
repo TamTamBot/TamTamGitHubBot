@@ -29,6 +29,7 @@ public class GitHubPushEvent implements CanSandedToSubscriber {
         StringBuilder toString = new StringBuilder("Push to ").append(repository.getFullName()).append( "link: ")
                 .append(repository.getHtmlUrl()).append("\n\r Commits:\n\r");
 
+
         commits.forEach(c -> toString.append(" message: ").append(c.getMessage()).append("\n\r"));
         toString.append("Pusher name: ").append(pusher.getName());
         return toString.toString();
