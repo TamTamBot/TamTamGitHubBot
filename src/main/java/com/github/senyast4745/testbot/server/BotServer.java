@@ -48,7 +48,7 @@ public class BotServer implements Runnable {
         });
         post("github", (request, response) -> {
             String header = request.headers(GitHubConstants.GITHUB_EVENT_NAME_HEADER);
-            log.info("Github event " + header);
+            log.info("Github event " + header + " " + request.body());
             handleGitHub(header, request.body());
             return "";
         });

@@ -86,10 +86,11 @@ public class CommandParser {
 
                         chatState.put(senderId, DEFAULT);
                         sendSimpleMessage(chatId, "Added");
+                    } else {
+                        sendSimpleMessage(chatId, "Sorry, something " +
+                                "went wrong when adding repository \"" + command + "\". Check the name is correct" +
+                                " and is webhooks are enabled for our repository");
                     }
-                    sendSimpleMessage(chatId, "Sorry, something " +
-                            "went wrong when adding repository \"" + command + "\". Check the name is correct" +
-                            " and is webhooks are enabled for our repository");
                     break;
                 default:
                     help(chatId);
