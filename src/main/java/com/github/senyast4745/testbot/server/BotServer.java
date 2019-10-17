@@ -10,6 +10,7 @@ import com.github.senyast4745.testbot.bot.impl.NotifyClassImpl;
 import com.github.senyast4745.testbot.constans.GitHubConstants;
 import com.github.senyast4745.testbot.constans.GitHubEvents;
 import com.github.senyast4745.testbot.models.GitHubCommitCommentEvent;
+import com.github.senyast4745.testbot.models.GitHubPullRequestEvent;
 import com.github.senyast4745.testbot.models.GitHubPushEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ public class BotServer implements Runnable {
 
     private TamTamBot bot;
     private NotifyClass notifyClass;
+
     public BotServer(TamTamBot bot) {
         this.bot = bot;
         notifyClass = new NotifyClassImpl();
@@ -44,7 +46,7 @@ public class BotServer implements Runnable {
             log.info(request.body());
             return "";
         });
-        post("github", (request, response) ->{
+        post("github", (request, response) -> {
             String header = request.headers(GitHubConstants.GITHUB_EVENT_NAME_HEADER);
             log.info("Github event " + header);
             handleGitHub(header, request.body());
@@ -52,7 +54,7 @@ public class BotServer implements Runnable {
         });
     }
 
-    private void handleUpdate(Update update){
+    private void handleUpdate(Update update) {
         switch (update.getType()) {
             case (Update.BOT_ADDED):
                 bot.onBotAddedToChat((BotAddedToChatUpdate) update);
@@ -88,20 +90,23 @@ public class BotServer implements Runnable {
 
     private void handleGitHub(String event, String requestBody) throws SerializationException {
         GitHubEvents events = GitHubEvents.DEFAULT;
-        try{
+        try {
             log.info(event.toUpperCase());
             events = GitHubEvents.valueOf(event.toUpperCase());
-        } catch (IllegalArgumentException ignore){
+        } catch (IllegalArgumentException ignore) {
         }
-
-        switch (events){
+        switch (events) {
             case PUSH:
                 GitHubPushEvent pushEvent = serializer.deserialize(requestBody, GitHubPushEvent.class);
                 notifyClass.onPush(pushEvent);
                 break;
             case COMMIT_COMMENT:
                 GitHubCommitCommentEvent commitCommentEvent = serializer.deserialize(requestBody, GitHubCommitCommentEvent.class);
-                notifyClass.onCommitComment(commitCommentEvent);
+                notifyClass.defaultEvent(commitCommentEvent);
+                break;
+            case PULL_REQUEST:
+                GitHubPullRequestEvent pullRequestEvent = serializer.deserialize(requestBody, GitHubPullRequestEvent.class);
+                notifyClass.defaultEvent(pullRequestEvent);
                 break;
             default:
                 log.info("Unknown command " + events.name());

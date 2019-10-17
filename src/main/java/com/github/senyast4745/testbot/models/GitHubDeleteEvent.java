@@ -8,7 +8,7 @@ import lombok.Setter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Getter
 @Setter
-public class GitHubDeleteEvent implements CanSandedToSubscriber {
+public class GitHubDeleteEvent implements GitHubEvents {
     private String ref;
     @JsonProperty("ref_type")
     private String refType;

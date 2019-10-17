@@ -1,6 +1,6 @@
 package com.github.senyast4745.testbot.models;
 
-public interface CanSandedToSubscriber {
+public interface GitHubEvents {
 
     GitHubRepositoryModel getRepository();
 

@@ -8,7 +8,7 @@ import lombok.Setter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Getter
 @Setter
-public class GitHubPullRequestEvent implements CanSandedToSubscriber {
+public class GitHubPullRequestEvent implements GitHubEvents {
     private String action; // assigned, unassigned, review_requested,
     // review_request_removed, labeled, unlabeled, opened, edited,
     // closed, ready_for_review, locked, unlocked, or reopened
@@ -17,4 +17,9 @@ public class GitHubPullRequestEvent implements CanSandedToSubscriber {
     private GitHubPullRequestModel pullRequest;
     private GitHubRepositoryModel repository;
     private GitHubUserModel sender;
+
+    @Override
+    public String toString() {
+        return "Pull request\n\rAction " + action + "\n\r" + pullRequest.toString();
+    }
 }

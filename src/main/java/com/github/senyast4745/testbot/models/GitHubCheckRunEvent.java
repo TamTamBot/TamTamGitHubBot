@@ -4,16 +4,20 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 @Getter
 @Setter
-@ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class GitHubCheckRunEvent implements CanSandedToSubscriber {
+public class GitHubCheckRunEvent implements GitHubEvents {
     private String action;
     @JsonProperty("check_run")
     private GitHubCheckRunModel checkRun;
     private GitHubRepositoryModel repository;
     private GitHubUserModel sender;
+
+    @Override
+    public String toString() {
+        return "Check run event action " + action + " " + checkRun.getCheckSuite().toString() + "\n\rBy user " +
+                sender.getLogin() + "\n\rIn repository " + repository.getFullName();
+    }
 }

@@ -2,22 +2,18 @@ package com.github.senyast4745.testbot.bot.impl;
 
 import chat.tamtam.botapi.exceptions.APIException;
 import chat.tamtam.botapi.exceptions.ClientException;
-import chat.tamtam.botapi.model.AttachmentRequest;
 import chat.tamtam.botapi.model.NewMessageBody;
-import chat.tamtam.botapi.model.NewMessageLink;
 import com.github.senyast4745.testbot.bot.NotifyClass;
-import com.github.senyast4745.testbot.models.CanSandedToSubscriber;
+import com.github.senyast4745.testbot.models.GitHubEvents;
 import com.github.senyast4745.testbot.models.GitHubCommitCommentEvent;
 import com.github.senyast4745.testbot.models.GitHubPushEvent;
-import com.github.senyast4745.testbot.models.GitHubRepositoryModel;
 import com.github.senyast4745.testbot.repository.UsersRepository;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class NotifyClassImpl extends NotifyClass {
-    @Override
+/*    @Override
     public void onCommitComment(GitHubCommitCommentEvent comment) {
         sendMessageToUsers(comment);
     }
@@ -25,9 +21,14 @@ public class NotifyClassImpl extends NotifyClass {
     @Override
     public void onPush(GitHubPushEvent push) {
         sendMessageToUsers(push);
+    }*/
+
+    @Override
+    public void defaultEvent(GitHubEvents event) {
+        sendMessageToUsers(event);
     }
 
-    private void sendMessageToUsers(CanSandedToSubscriber event) {
+    private void sendMessageToUsers(GitHubEvents event) {
         NewMessageBody body = new NewMessageBody(event.toString(), null, null);
         try {
             List<Long> ids = UsersRepository.getTamTamUser(event.getRepository().getFullName());

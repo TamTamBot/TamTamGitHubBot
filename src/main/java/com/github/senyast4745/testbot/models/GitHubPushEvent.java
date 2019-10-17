@@ -9,7 +9,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Getter
 @Setter
-public class GitHubPushEvent implements CanSandedToSubscriber {
+public class GitHubPushEvent implements GitHubEvents {
     private boolean force;
     private List<GitHubCommitModel> commits;
     private GitHubRepositoryModel repository;
@@ -18,7 +18,7 @@ public class GitHubPushEvent implements CanSandedToSubscriber {
 
     @Getter
     @Setter
-    private static
+    public static
     class PushAuthor {
         private String name;
         private String email;

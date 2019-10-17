@@ -9,6 +9,7 @@ import lombok.ToString;
 import java.util.List;
 
 
+@SuppressWarnings("ALL")
 @Getter
 @Setter
 @ToString
@@ -38,7 +39,7 @@ public class GitHubCheckRunModel {
     @Setter
     @ToString
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private static final class Output {
+    public static final class Output {
         private String title;
         private String summary;
         private String text;
@@ -48,7 +49,7 @@ public class GitHubCheckRunModel {
     @Setter
     @ToString
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private static final class CheckSuite {
+    public static final class CheckSuite {
         private String status;
         private String conclusion;
         private String url;
@@ -62,7 +63,7 @@ public class GitHubCheckRunModel {
     @Setter
     @ToString
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private static final class SimplePullRequest {
+    public static final class SimplePullRequest {
         private String url;
         private SimpleBranch head;
         private SimpleBranch base;
@@ -71,7 +72,7 @@ public class GitHubCheckRunModel {
         @Setter
         @ToString
         @JsonIgnoreProperties(ignoreUnknown = true)
-        private static final class SimpleBranch{
+        public static final class SimpleBranch{
             private String ref;
             private SimpleRepo repo;
 
@@ -79,7 +80,7 @@ public class GitHubCheckRunModel {
             @Setter
             @ToString
             @JsonIgnoreProperties(ignoreUnknown = true)
-            private static final class SimpleRepo{
+            public static final class SimpleRepo{
                 private String url;
                 private String name;
             }
