@@ -1,4 +1,4 @@
-package com.github.senyast4745.testbot.models;
+package com.github.senyast4745.testbot.models.github;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

@@ -1,10 +1,9 @@
-package com.github.senyast4745.testbot.models;
+package com.github.senyast4745.testbot.models.github;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
-import org.kohsuke.github.GHCommit;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Getter

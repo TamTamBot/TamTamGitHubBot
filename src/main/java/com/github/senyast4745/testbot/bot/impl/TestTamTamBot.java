@@ -9,12 +9,15 @@ import com.github.senyast4745.testbot.parsers.CallbackParser;
 import com.github.senyast4745.testbot.parsers.CommandParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.UUID;
 
+@Component
 public class TestTamTamBot extends TamTamBot {
 
     private TamTamBotAPI bot;
@@ -24,7 +27,7 @@ public class TestTamTamBot extends TamTamBot {
     private CommandParser commandParser;
     private CallbackParser callbackParser;
 
-    public TestTamTamBot(String serverURL, String token) throws ClientException, APIException {
+    public TestTamTamBot(@Value("server.bot.url") String serverURL, @Value("bot.token") String token) throws ClientException, APIException {
         super(serverURL, token);
         bot = getBot();
         commandParser = new CommandParser(bot);

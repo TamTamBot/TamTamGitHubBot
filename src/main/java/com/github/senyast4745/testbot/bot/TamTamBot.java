@@ -5,11 +5,14 @@ import chat.tamtam.botapi.exceptions.APIException;
 import chat.tamtam.botapi.exceptions.ClientException;
 import chat.tamtam.botapi.model.*;
 import com.github.senyast4745.testbot.constans.Commands;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static com.github.senyast4745.testbot.constans.Commands.*;
+
 public abstract class TamTamBot {
 
     private static TamTamBotAPI bot;

@@ -67,6 +67,7 @@ public class CommandParser {
                     chatState.put(senderId, CommandStates.DEFAULT);
                     list(chatId, senderId);
                     break;
+
                 default:
                     NewMessageLink link = new NewMessageLink(MessageLinkType.REPLY, update.getMessage().getBody().getMid());
                     NewMessageBody body = new NewMessageBody("Sorry, I don't know command: " + update.getMessage().getBody().getText(), null, link);
@@ -109,7 +110,6 @@ public class CommandParser {
     }
 
     private void registration(long chatId) throws ClientException, APIException {
-
         sendSimpleMessage(chatId, "Enter full GitHub repository name");
     }
 

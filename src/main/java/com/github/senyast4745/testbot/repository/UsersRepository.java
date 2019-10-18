@@ -4,12 +4,13 @@ import com.github.senyast4745.testbot.Main;
 import com.github.senyast4745.testbot.utils.PostgresJDBCUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
-public class UsersRepository {
+public class UsersRepository  {
 
     private static PostgresJDBCUtils jdbcUtils;
 

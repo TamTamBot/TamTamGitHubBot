@@ -4,15 +4,15 @@ import chat.tamtam.botapi.client.impl.JacksonSerializer;
 import chat.tamtam.botapi.exceptions.SerializationException;
 import chat.tamtam.botapi.model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.senyast4745.testbot.bot.NotifyClass;
+import com.github.senyast4745.testbot.bot.GitHubNotifyClass;
 import com.github.senyast4745.testbot.bot.TamTamBot;
-import com.github.senyast4745.testbot.bot.impl.NotifyClassImpl;
+import com.github.senyast4745.testbot.bot.impl.GitHubNotifyClassImpl;
 import com.github.senyast4745.testbot.constans.GitHubConstants;
 import com.github.senyast4745.testbot.constans.GitHubEvents;
-import com.github.senyast4745.testbot.models.GitHubCommitCommentEvent;
-import com.github.senyast4745.testbot.models.GitHubCreateEvent;
-import com.github.senyast4745.testbot.models.GitHubPullRequestEvent;
-import com.github.senyast4745.testbot.models.GitHubPushEvent;
+import com.github.senyast4745.testbot.models.github.GitHubCommitCommentEvent;
+import com.github.senyast4745.testbot.models.github.GitHubCreateEvent;
+import com.github.senyast4745.testbot.models.github.GitHubPullRequestEvent;
+import com.github.senyast4745.testbot.models.github.GitHubPushEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,11 +22,11 @@ import static spark.Spark.post;
 public class BotServer implements Runnable {
 
     private TamTamBot bot;
-    private NotifyClass notifyClass;
+    private GitHubNotifyClass gitHubNotifyClass;
 
     public BotServer(TamTamBot bot) {
         this.bot = bot;
-        notifyClass = new NotifyClassImpl();
+        gitHubNotifyClass = new GitHubNotifyClassImpl();
     }
 
     private final Logger log = LoggerFactory.getLogger(BotServer.class);
@@ -99,19 +99,19 @@ public class BotServer implements Runnable {
         switch (events) {
             case CREATE:
                 GitHubCreateEvent createEvent = serializer.deserialize(requestBody, GitHubCreateEvent.class);
-                notifyClass.defaultEvent(createEvent);
+                gitHubNotifyClass.defaultEvent(createEvent);
                 break;
             case PUSH:
                 GitHubPushEvent pushEvent = serializer.deserialize(requestBody, GitHubPushEvent.class);
-                notifyClass.onPush(pushEvent);
+                gitHubNotifyClass.onPush(pushEvent);
                 break;
             case COMMIT_COMMENT:
                 GitHubCommitCommentEvent commitCommentEvent = serializer.deserialize(requestBody, GitHubCommitCommentEvent.class);
-                notifyClass.defaultEvent(commitCommentEvent);
+                gitHubNotifyClass.defaultEvent(commitCommentEvent);
                 break;
             case PULL_REQUEST:
                 GitHubPullRequestEvent pullRequestEvent = serializer.deserialize(requestBody, GitHubPullRequestEvent.class);
-                notifyClass.defaultEvent(pullRequestEvent);
+                gitHubNotifyClass.defaultEvent(pullRequestEvent);
                 break;
             default:
                 log.info("Unknown command " + events.name());
