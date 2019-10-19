@@ -16,10 +16,8 @@
             <!-- daily rollover -->
             <fileNamePattern>tamtambot.%d{yyyy-MM-dd}.log</fileNamePattern>
 
-            <!-- Храним файлы логов 10 дней -->
             <maxHistory>10</maxHistory>
 
-            <!-- Максимальный размер файлов лога 30 гигабайт -->
             <totalSizeCap>1023MB</totalSizeCap>
 
         </rollingPolicy>

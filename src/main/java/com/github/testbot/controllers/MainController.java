@@ -2,9 +2,12 @@ package com.github.testbot.controllers;
 
 import chat.tamtam.botapi.model.Update;
 import com.github.testbot.bot.WebhookBot;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.github.testbot.constans.GitHubConstants;
+import com.github.testbot.github.WebhookGitHub;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -12,12 +15,26 @@ import javax.validation.Valid;
 @RestController
 public class MainController {
 
-    @Autowired
-    private WebhookBot webhookBot;
+    private final WebhookBot webhookBot;
 
-    @PostMapping("/")
-    public String receiveBotUpdates(@RequestBody @Valid Update update) {
+    private final WebhookGitHub webhookGitHub;
+
+    public MainController(WebhookBot webhookBot, WebhookGitHub webhookGitHub) {
+        this.webhookBot = webhookBot;
+        this.webhookGitHub = webhookGitHub;
+    }
+
+    @PostMapping("/tamtam")
+    public ResponseEntity<Void> receiveBotUpdates(@RequestBody @Valid final Update update) {
         webhookBot.handleUpdate(update);
-        return "Hello!";
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/github")
+    public ResponseEntity<Void> receiveGitHubUpdate(@RequestBody @Valid final String body,
+                                                    @RequestHeader(GitHubConstants.GITHUB_EVENT_NAME_HEADER)
+                                                            String header){
+        webhookGitHub.handleEvent(body, header);
+        return ResponseEntity.ok().build();
     }
 }

@@ -11,17 +11,23 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class BotConfiguration {
 
-    @Value("${baseUrl}")
+    @Value("${server.bot.url}")
     private String baseWebhookUrl;
 
+    @Value("${bot.token}")
+    private String botToken;
+
+    @Bean(name = "bot")
+    public TamTamBotAPI getTamTamBot() {
+        return TamTamBotAPI.create(botToken);
+    }
 
     @Bean
     public WebhookBot getWebhookBot() {
-        TamTamBotAPI bot = TamTamBotAPI.create(System.getenv("TOKEN"));
         WebhookBot webhookBot = null;
         try {
-            webhookBot = new WebhookBot(bot);
-            webhookBot.setWebhook(baseWebhookUrl);
+            webhookBot = new WebhookBot(getTamTamBot());
+            webhookBot.setWebhook(baseWebhookUrl + "/tamtam");
         } catch (APIException | ClientException e) {
             e.printStackTrace();
         }
