@@ -1,19 +1,16 @@
-package com.github.testbot.api;
+package com.github.testbot.bot;
 
 import chat.tamtam.botapi.TamTamBotAPI;
-import chat.tamtam.botapi.client.TamTamClient;
-import chat.tamtam.botapi.client.impl.JacksonSerializer;
-import chat.tamtam.botapi.client.impl.OkHttpTransportClient;
 import chat.tamtam.botapi.exceptions.APIException;
 import chat.tamtam.botapi.exceptions.ClientException;
 import chat.tamtam.botapi.model.*;
+import com.github.testbot.interfaces.BotActions;
 
+public class WebhookBot implements BotActions {
 
+    private TamTamBotAPI bot;
 
-public abstract class AbstractBotAPI {
-    public final TamTamBotAPI bot;
-
-    public AbstractBotAPI(TamTamBotAPI bot) throws APIException, ClientException {
+    public WebhookBot(TamTamBotAPI bot) throws APIException, ClientException {
         this.bot = bot;
     }
 
@@ -21,38 +18,20 @@ public abstract class AbstractBotAPI {
         bot.subscribe(new SubscriptionRequestBody(webhookUrl)).execute();
     }
 
+    @Override
     public void onMessageCreate(MessageCreatedUpdate update) {
+        Message message = update.getMessage();
+        User sender = update.getMessage().getSender();
+        NewMessageBody body = new NewMessageBody( message.getBody().getText() + " Hello," + sender, null, null);
+        try {
+            bot.sendMessage(body).userId(sender.getUserId()).execute();
+        } catch (ClientException | APIException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void onMessageCallback(MessageCallbackUpdate update) {
-    }
-
-    public void onMessageEdited(MessageEditedUpdate update) {
-    }
-
-    public void onMessageRemoved(MessageRemovedUpdate update) {
-    }
-
-    public void onBotAddedToChat(BotAddedToChatUpdate update) {
-    }
-
-    public void onBotStarted(BotStartedUpdate update) {
-    }
-
-    public void onBotRemovedFromChat(BotRemovedFromChatUpdate update) {
-    }
-
-    public void onUserAddedToChat(UserAddedToChatUpdate userAddedToChatUpdate) {
-    }
-
-    public void onUserRemovedFromChat(UserRemovedFromChatUpdate userAddedToChatUpdate) {
-    }
-
-    public void onChatTitleChanged(ChatTitleChangedUpdate update) {
-    }
-
+    @Override
     public void handleUpdate(Update update) {
-
         switch (update.getType()) {
             case (Update.BOT_ADDED):
                 onBotAddedToChat((BotAddedToChatUpdate) update);
@@ -85,5 +64,51 @@ public abstract class AbstractBotAPI {
                 onChatTitleChanged((ChatTitleChangedUpdate) update);
         }
     }
-}
 
+    @Override
+    public void onMessageCallback(MessageCallbackUpdate update) {
+
+    }
+
+    @Override
+    public void onMessageEdited(MessageEditedUpdate update) {
+
+    }
+
+    @Override
+    public void onMessageRemoved(MessageRemovedUpdate update) {
+
+    }
+
+    @Override
+    public void onBotAddedToChat(BotAddedToChatUpdate update) {
+
+    }
+
+    @Override
+    public void onBotStarted(BotStartedUpdate update) {
+
+    }
+
+    @Override
+    public void onBotRemovedFromChat(BotRemovedFromChatUpdate update) {
+
+    }
+
+    @Override
+    public void onUserAddedToChat(UserAddedToChatUpdate userAddedToChatUpdate) {
+
+    }
+
+    @Override
+    public void onUserRemovedFromChat(UserRemovedFromChatUpdate userAddedToChatUpdate) {
+
+    }
+
+    @Override
+    public void onChatTitleChanged(ChatTitleChangedUpdate update) {
+
+    }
+
+
+}
