@@ -1,8 +1,5 @@
 plugins {
     id 'java'
-    id "io.freefair.lombok" version "4.1.2"
-    id 'com.github.johnrengelman.shadow' version '5.1.0'
-    id 'distribution'
     id 'org.springframework.boot' version '2.1.7.RELEASE'
     id 'io.spring.dependency-management' version '1.0.8.RELEASE'
 }
@@ -18,72 +15,9 @@ repositories {
     maven { url "http://repo.spring.io/milestone" }
 }
 
-def prodProfiles = 'prod'
-def devProfiles = 'dev'
-def testProfiles = 'test'
-def localProfiles = 'local'
-def propertyDrivenProfiles
-
-if (project.hasProperty('prod')) {
-    propertyDrivenProfiles = prodProfiles
-} else if (project.hasProperty('dev')) {
-    propertyDrivenProfiles = devProfiles
-} else if (project.hasProperty('test')) {
-    propertyDrivenProfiles = testProfiles
-} else {
-    propertyDrivenProfiles = localProfiles
-}
-
-jar {
-    manifest {
-        attributes 'Main-Class': 'com.github.testbot.Main'
-    }
-}
-
-shadowJar {
-    exclude '*.properties'
-}
-
-
 dependencies {
-
-    compile('chat.tamtam:tamtam-bot-api:0.1.9')
-/*    compile group: 'com.squareup.okhttp3', name: 'okhttp', version: '3.9.0'
-    compile group: 'com.squareup.okhttp3', name: 'okhttp-urlconnection', version: '3.9.0'*/
-
-    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
+    compile group: 'chat.tamtam', name: 'tamtam-bot-api', version: '0.1.9'
     testCompile group: 'junit', name: 'junit', version: '4.12'
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+    compile("org.springframework.boot:spring-boot-starter-web")
 }
-
-distributions {
-
-
-    //noinspection GroovyAssignabilityCheck
-    main {
-        baseName = 'githubbotbot'
-
-        distTar {
-            compression = Compression.GZIP
-            extension = 'tar.gz'
-        }
-        contents {
-            from(shadowJar) {
-
-                include "*.jar"
-                fileMode = 0755
-            }
-            into('config') {  // Contents of this directory are copied by default
-                from 'src/main/resources/'
-                include '*.properties'
-                dirMode = 0755
-                fileMode = 0644
-            }
-
-            /*
-            filter(ReplaceTokens, tokens: [act_profile: propertyDrivenProfiles ])
-            filteringCharset = 'UTF-8'*/
-        }
-    }
-}
-

@@ -5,20 +5,10 @@ import chat.tamtam.botapi.exceptions.APIException;
 import chat.tamtam.botapi.exceptions.ClientException;
 import chat.tamtam.botapi.model.*;
 import com.github.testbot.interfaces.BotActions;
-import com.github.testbot.parsers.CallbackParser;
-import com.github.testbot.parsers.CommandParser;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 
-@Slf4j
 public class WebhookBot implements BotActions {
 
     private TamTamBotAPI bot;
-
-    @Autowired
-    private CommandParser commandParser;
-    /*@Autowired
-    private CallbackParser callbackParser;*/
 
     public WebhookBot(TamTamBotAPI bot) throws APIException, ClientException {
         this.bot = bot;
@@ -26,6 +16,18 @@ public class WebhookBot implements BotActions {
 
     public void setWebhook(String webhookUrl) throws ClientException, APIException {
         bot.subscribe(new SubscriptionRequestBody(webhookUrl)).execute();
+    }
+
+    @Override
+    public void onMessageCreate(MessageCreatedUpdate update) {
+        Message message = update.getMessage();
+        User sender = update.getMessage().getSender();
+        NewMessageBody body = new NewMessageBody( message.getBody().getText() + " Hello," + sender, null, null);
+        try {
+            bot.sendMessage(body).userId(sender.getUserId()).execute();
+        } catch (ClientException | APIException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -60,15 +62,6 @@ public class WebhookBot implements BotActions {
                 break;
             case (Update.CHAT_TITLE_CHANGED):
                 onChatTitleChanged((ChatTitleChangedUpdate) update);
-        }
-    }
-
-    @Override
-    public void onMessageCreate(MessageCreatedUpdate update) {
-        try {
-            commandParser.parse(update);
-        } catch (APIException | ClientException e) {
-            log.error("Can not send response", e);
         }
     }
 
