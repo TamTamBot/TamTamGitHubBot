@@ -83,6 +83,10 @@ public class CustomHttpClient {
         Response response = client.newCall(request).execute();
         log.info(response.toString());
         if (response.code() == HttpStatus.CREATED.value()) {
+            log.info("Webhook created successfully.");
+            return true;
+        } else if (response.code() == HttpStatus.UNPROCESSABLE_ENTITY.value()) {
+            log.info("Webhook already created.");
             return true;
         } else {
             log.warn("Status code: {}", response.code());

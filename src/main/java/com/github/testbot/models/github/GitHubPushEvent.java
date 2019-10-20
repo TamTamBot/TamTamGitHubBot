@@ -30,9 +30,8 @@ public class GitHubPushEvent implements GitHubEvents {
     public String toString() {
         StringBuilder toString = new StringBuilder("Push to ").append(repository.getFullName()).append( " link: ")
                 .append(repository.getHtmlUrl()).append("\n\rCommit to branch: ").append(ref).append("\n\r");
-
-
-        commits.forEach(c -> toString.append("Message: ").append(c.getMessage()).append("\n\r").append("Updated files: ").append(c.getModified()).append("\n\r"));
+        commits.forEach(c -> toString.append("Message: ").append(c.getMessage()).append("\n\r")
+                .append("Updated files: ").append(c.getModified()).append("\n\r"));
         toString.append("Pusher name: ").append(pusher.getName());
         return toString.toString();
     }
