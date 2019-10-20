@@ -1,6 +1,7 @@
 package com.github.testbot.models.github;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,6 +12,7 @@ import java.util.List;
 @Setter
 public class GitHubPushEvent implements GitHubEvents {
     private boolean force;
+    private String ref;
     private List<GitHubCommitModel> commits;
     private GitHubRepositoryModel repository;
     private PushAuthor pusher;
@@ -27,10 +29,10 @@ public class GitHubPushEvent implements GitHubEvents {
     @Override
     public String toString() {
         StringBuilder toString = new StringBuilder("Push to ").append(repository.getFullName()).append( " link: ")
-                .append(repository.getHtmlUrl()).append("\n\rCommits:\n\r");
+                .append(repository.getHtmlUrl()).append("\n\rCommit to branch: ").append(ref).append("\n\r");
 
 
-        commits.forEach(c -> toString.append("message: ").append(c.getMessage()).append("\n\r"));
+        commits.forEach(c -> toString.append("Message: ").append(c.getMessage()).append("\n\r").append("Updated files: ").append(c.getModified()).append("\n\r"));
         toString.append("Pusher name: ").append(pusher.getName());
         return toString.toString();
     }
