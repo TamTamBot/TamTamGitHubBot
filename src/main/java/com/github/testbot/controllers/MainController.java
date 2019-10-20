@@ -4,6 +4,7 @@ import chat.tamtam.botapi.model.Update;
 import com.github.testbot.bot.WebhookBot;
 import com.github.testbot.constans.GitHubConstants;
 import com.github.testbot.github.WebhookGitHub;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
+@Slf4j
 @RestController
 public class MainController {
 
@@ -34,6 +36,7 @@ public class MainController {
     public ResponseEntity<Void> receiveGitHubUpdate(@RequestBody @Valid final String body,
                                                     @RequestHeader(GitHubConstants.GITHUB_EVENT_NAME_HEADER)
                                                             String header){
+        log.info("GitHub Body {}",body);
         webhookGitHub.handleEvent(body, header);
         return ResponseEntity.ok().build();
     }
