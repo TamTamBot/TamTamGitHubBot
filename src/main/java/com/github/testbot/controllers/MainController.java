@@ -5,6 +5,7 @@ import com.github.testbot.bot.WebhookBot;
 import com.github.testbot.constans.GitHubConstants;
 import com.github.testbot.github.WebhookGitHub;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,14 +18,13 @@ import javax.validation.Valid;
 @RestController
 public class MainController {
 
-    private final WebhookBot webhookBot;
+    @Autowired
+    private WebhookBot webhookBot;
 
-    private final WebhookGitHub webhookGitHub;
+    @Autowired
+    private WebhookGitHub webhookGitHub;
 
-    public MainController(WebhookBot webhookBot, WebhookGitHub webhookGitHub) {
-        this.webhookBot = webhookBot;
-        this.webhookGitHub = webhookGitHub;
-    }
+
 
     @PostMapping("/tamtam")
     public ResponseEntity<Void> receiveBotUpdates(@RequestBody @Valid final Update update) {
@@ -33,7 +33,7 @@ public class MainController {
     }
 
     @PostMapping("/github")
-    public ResponseEntity<Void> receiveGitHubUpdate(@RequestBody @Valid final String body,
+    public ResponseEntity<Void> receiveGitHubUpdates(@RequestBody @Valid final String body,
                                                     @RequestHeader(GitHubConstants.GITHUB_EVENT_NAME_HEADER)
                                                             String header){
         log.info("GitHub Body {}",body);

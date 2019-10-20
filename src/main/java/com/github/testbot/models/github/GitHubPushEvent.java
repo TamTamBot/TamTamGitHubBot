@@ -27,10 +27,10 @@ public class GitHubPushEvent implements GitHubEvents {
     @Override
     public String toString() {
         StringBuilder toString = new StringBuilder("Push to ").append(repository.getFullName()).append( " link: ")
-                .append(repository.getHtmlUrl()).append("\n\r Commits:\n\r");
+                .append(repository.getHtmlUrl()).append("\n\rCommits:\n\r");
 
 
-        commits.forEach(c -> toString.append(" message: ").append(c.getMessage()).append("\n\r"));
+        commits.forEach(c -> toString.append("message: ").append(c.getMessage()).append("\n\r"));
         toString.append("Pusher name: ").append(pusher.getName());
         return toString.toString();
     }

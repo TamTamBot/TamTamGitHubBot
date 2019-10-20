@@ -9,8 +9,9 @@ import chat.tamtam.botapi.model.NewMessageBody;
 import com.github.testbot.interfaces.GitHubActions;
 import com.github.testbot.models.database.UserModel;
 import com.github.testbot.models.github.*;
-import com.github.testbot.repository.MongoUserRepository;
+import com.github.testbot.services.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -21,16 +22,17 @@ import static com.github.testbot.constans.GitHubConstants.*;
 @Component
 public class WebhookGitHub implements GitHubActions {
 
+    @Autowired
+    private UserService userService;
+
     private final TamTamBotAPI bot;
 
-    private final MongoUserRepository usersRepository;
 
     private final JacksonSerializer serializer;
 
 
-    public WebhookGitHub(TamTamBotAPI bot, MongoUserRepository usersRepository, JacksonSerializer serializer) {
+    public WebhookGitHub(TamTamBotAPI bot, JacksonSerializer serializer) {
         this.bot = bot;
-        this.usersRepository = usersRepository;
         this.serializer = serializer;
     }
 
@@ -70,7 +72,7 @@ public class WebhookGitHub implements GitHubActions {
     @Override
     public void sendMessageToUsers(GitHubEvents event) {
         NewMessageBody body = new NewMessageBody(event.toString(), null, null);
-        List<UserModel> users = usersRepository.findAllByRepository_FullName(event.getRepository().getFullName());
+        List<UserModel> users = userService.getUsersByGithubRepoName(event.getRepository().getFullName());
         users.forEach(user -> {
             try {
                 bot.sendMessage(body).userId(user.getTamTamUserId()).execute();

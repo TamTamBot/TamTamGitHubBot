@@ -1,4 +1,4 @@
-package com.github.testbot.repository;
+package com.github.testbot.repositories;
 
 import com.github.testbot.models.database.UserModel;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -11,9 +11,11 @@ import java.util.List;
  * Created by z0043fkv on 18.10.2019
  */
 
-public interface MongoUserRepository extends MongoRepository<UserModel, String> {
+public interface UserRepository extends MongoRepository<UserModel, String> {
 
-    public List<UserModel> findAllByTamTamUserId(Long id);
+    UserModel findOneByTamTamUserId(Long id);
 
-    public List<UserModel> findAllByRepository_FullName(String fullName);
+    List<UserModel> findAllByTamTamUserId(Long id);
+
+    List<UserModel> findAllByGithubRepoFullName(String fullName);
 }

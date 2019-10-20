@@ -3,9 +3,9 @@ package com.github.testbot.constans;
 public enum BotCommands {
 
     HELP ("help", "Help command"),
-    SAY ("say", "Say hello"),
-    REG ("reg", "Reg command"),
-    LIST ("list", "list of your connected GitHub repositories"),
+    LOGIN ("login", "Login to github"),
+    SUBSCRIBE("subscribe", "Subscribe to github repo news"),
+    LIST("list", "List of your connected GitHub repositories"),
     NOT_FOUND ("", "");
 
     private String commandName;

@@ -5,16 +5,17 @@ import chat.tamtam.botapi.exceptions.APIException;
 import chat.tamtam.botapi.exceptions.ClientException;
 import chat.tamtam.botapi.exceptions.SerializationException;
 import chat.tamtam.botapi.model.*;
-import com.github.testbot.constans.CommandStates;
+import com.github.testbot.constans.ChatStates;
 import com.github.testbot.constans.BotCommands;
 import com.github.testbot.github.CustomHttpClient;
 import com.github.testbot.interfaces.Commands;
 import com.github.testbot.interfaces.Parser;
 import com.github.testbot.models.database.UserModel;
 import com.github.testbot.models.github.GitHubRepositoryModel;
-import com.github.testbot.repository.MongoUserRepository;
+import com.github.testbot.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -23,36 +24,34 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import static com.github.testbot.constans.BotCommands.HELP;
-import static com.github.testbot.constans.CommandStates.*;
+import static com.github.testbot.constans.ChatStates.*;
 
 @Slf4j
 @Component
 public class CommandParser implements Parser, Commands {
+
     private final TamTamBotAPI bot;
 
     private final CustomHttpClient httpClient;
 
-    private final
-    MongoUserRepository userRepository;
+    @Autowired
+    private UserService userService;
 
-    private final ConcurrentMap<Long, CommandStates> chatState = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Long, ChatStates> chatState = new ConcurrentHashMap<>();
 
-    public CommandParser(final TamTamBotAPI bot, final CustomHttpClient httpClient, final MongoUserRepository userRepository) {
+    public CommandParser(final TamTamBotAPI bot, final CustomHttpClient httpClient) {
         this.bot = bot;
         this.httpClient = httpClient;
-        this.userRepository = userRepository;
     }
 
     @Override
     public <T extends Update> void parse(@NotNull T update) throws APIException, ClientException {
         MessageCreatedUpdate createdUpdate = (MessageCreatedUpdate) update;
-        String command = createdUpdate.getMessage().getBody().getText();
+        String messageText = createdUpdate.getMessage().getBody().getText();
         Long senderId = createdUpdate.getMessage().getSender().getUserId();
-        assert senderId != null;
-        assert command != null;
-        if (command.startsWith("/")) {
-            String commandBody = command.split(" ")[0];
-            commandBody = commandBody.substring(1).toUpperCase();
+        UserModel user = userService.getUser(senderId);
+        if (messageText.startsWith("/")) {
+            String commandBody = messageText.substring(1).toUpperCase();
             log.info("Command " + commandBody);
             BotCommands commandEnum = BotCommands.NOT_FOUND;
             try {
@@ -62,16 +61,24 @@ public class CommandParser implements Parser, Commands {
             }
             switch (commandEnum) {
                 case HELP:
-                    chatState.put(senderId, CommandStates.DEFAULT);
+                    chatState.put(senderId, ChatStates.DEFAULT);
                     help(senderId);
                     break;
-                case REG:
-                    chatState.put(senderId, REG_STATE_1);
+                case LOGIN:
+                    chatState.put(senderId, LOGIN_USERNAME);
+                    sendSimpleMessage(senderId, "Enter your GitHub username");
+                    break;
+                case SUBSCRIBE:
                     log.info("UPD " + update.toString());
-                    registration(senderId);
+                    if (user.isLoggedOn()) {
+                        chatState.put(senderId, SUBSCRIBE_TO_REPO);
+                        sendSimpleMessage(senderId, "Enter full GitHub repository name");
+                    } else {
+                        sendSimpleMessage(senderId, "You not logged in github. Please, login to github.\nCommand: /login");
+                    }
                     break;
                 case LIST:
-                    chatState.put(senderId, CommandStates.DEFAULT);
+                    chatState.put(senderId, ChatStates.DEFAULT);
                     list(senderId);
                     break;
 
@@ -86,20 +93,51 @@ public class CommandParser implements Parser, Commands {
 
             }
         } else {
-            switch (chatState.getOrDefault(senderId, CommandStates.DEFAULT)) {
-                case REG_STATE_1:
+            switch (chatState.getOrDefault(senderId, ChatStates.DEFAULT)) {
+                case LOGIN_USERNAME:
+                    user.setGithubUserName(messageText);
+                    userService.saveUser(user);
+                    sendSimpleMessage(senderId, "Enter your GitHub password");
+                    chatState.put(senderId, LOGIN_PASSWORD);
+                    break;
+                case LOGIN_PASSWORD:
+                    user.setGithubPassword(messageText);
+                    sendSimpleMessage(senderId, "Ok! Check creds...");
                     try {
-                        GitHubRepositoryModel repository = httpClient.pingGithubRepo(command);
-                        userRepository.save(new UserModel(senderId, repository));
-                        chatState.put(senderId, DEFAULT);
-                        sendSimpleMessage(senderId, "Added");
+                        if (httpClient.checkGithubCredentials(user)) {
+                            sendSimpleMessage(senderId, "Success! Now you can subscribe to repos!");
+                            user.setLoggedOn(true);
+                            userService.saveUser(user);
+                        } else {
+                            sendSimpleMessage(senderId, "Bad credentials :( Plz, try to login with another creds");
+                            user.setGithubUserName(null);
+                            user.setGithubPassword(null);
+                            user.setLoggedOn(false);
+                            userService.saveUser(user);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    chatState.put(senderId, ChatStates.DEFAULT);
+                    break;
+                case SUBSCRIBE_TO_REPO:
+                    try {
+                        GitHubRepositoryModel repository = httpClient.pingGithubRepo(messageText, user.getGithubUserName());
+                        user.setGithubRepo(repository);
+                        if (httpClient.addWebhookToRepo(user, messageText)){
+                            userService.saveUser(user);
+                            chatState.put(senderId, DEFAULT);
+                            sendSimpleMessage(senderId, "Successful subscription to repo: " + messageText);
+                        } else {
+                            sendSimpleMessage(senderId, "Problem with setting webhook to repo: " + messageText);
+                        }
+
                     } catch (IOException | SerializationException | IllegalStateException  e) {
                         log.error("Send to Github ex", e);
                         sendSimpleMessage(senderId, "Sorry, something " +
-                                "went wrong when adding repository \"" + command + "\". Check the name is correct" +
+                                "went wrong when adding repository \"" + messageText + "\". Check the name is correct" +
                                 " and is webhooks are enabled for our repository");
                     }
-
                     break;
                 default:
                     help(senderId);
@@ -120,17 +158,18 @@ public class CommandParser implements Parser, Commands {
     }
 
     @Override
-    public void registration(long senderId) throws ClientException, APIException {
-        sendSimpleMessage(senderId, "Enter full GitHub repository name");
+    public void subscribeToRepo(long senderId) throws ClientException, APIException {
+
     }
+
 
     @Override
     public void list(long senderId) throws APIException, ClientException {
         StringBuilder builder = new StringBuilder("List of your connected repositories:\n\r");
-        userRepository.findAllByTamTamUserId(senderId).forEach(user -> {
+        userService.getUsersByTamTamUserId(senderId).forEach(user -> {
             log.info("REPO " + user);
-            builder.append("name: ").append(user.getRepository().getFullName()).append("\n\r  url: ")
-                    .append(user.getRepository().getHtmlUrl()).append("\n\r");
+            builder.append("name: ").append(user.getGithubRepo().getFullName()).append("\n\r  url: ")
+                    .append(user.getGithubRepo().getHtmlUrl()).append("\n\r");
         });
         builder.append("To add new repositories use command /reg");
         log.info("LIST " + builder.toString());
