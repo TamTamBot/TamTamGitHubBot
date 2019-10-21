@@ -165,7 +165,6 @@ public class CommandParser implements Parser, Commands {
 
     }
 
-
     @Override
     public void list(long senderId) throws APIException, ClientException {
         StringBuilder builder = new StringBuilder("List of your connected repositories:\n\r");

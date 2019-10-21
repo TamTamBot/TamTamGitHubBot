@@ -6,6 +6,7 @@ import chat.tamtam.botapi.exceptions.ClientException;
 import chat.tamtam.botapi.model.*;
 import com.github.testbot.interfaces.BotActions;
 import com.github.testbot.models.database.UserModel;
+import com.github.testbot.parsers.CallbackParser;
 import com.github.testbot.parsers.CommandParser;
 import com.github.testbot.services.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -23,8 +24,8 @@ public class WebhookBot implements BotActions {
 
     @Autowired
     private CommandParser commandParser;
-    /*@Autowired
-    private CallbackParser callbackParser;*/
+    @Autowired
+    private CallbackParser callbackParser;
 
     @Autowired
     private UserService userService;
@@ -94,48 +95,50 @@ public class WebhookBot implements BotActions {
 
     @Override
     public void onMessageCallback(MessageCallbackUpdate update) {
-        throw new UnsupportedOperationException("Sorry, operation not support");
+        try {
+            callbackParser.parse(update);
+        } catch (APIException | ClientException e) {
+            log.error("Callback error", e);
+        }
     }
 
     @Override
     public void onMessageEdited(MessageEditedUpdate update) {
-        throw new UnsupportedOperationException("Sorry, operation not support");
+        log.info("Sorry, operation not support");
     }
 
     @Override
     public void onMessageRemoved(MessageRemovedUpdate update) {
-        throw new UnsupportedOperationException("Sorry, operation not support");
+        log.info("Sorry, operation not support");
     }
 
     @Override
     public void onBotAddedToChat(BotAddedToChatUpdate update) {
-        throw new UnsupportedOperationException("Sorry, operation not support");
+        log.info("Sorry, operation not support");
     }
 
     @Override
     public void onBotStarted(BotStartedUpdate update) {
-        throw new UnsupportedOperationException("Sorry, operation not support");
+        log.info("Sorry, operation not support");
     }
 
     @Override
     public void onBotRemovedFromChat(BotRemovedFromChatUpdate update) {
-        throw new UnsupportedOperationException("Sorry, operation not support");
+        log.info("Sorry, operation not support");
     }
 
     @Override
     public void onUserAddedToChat(UserAddedToChatUpdate userAddedToChatUpdate) {
-        throw new UnsupportedOperationException("Sorry, operation not support");
+        log.info("Sorry, operation not support");
     }
 
     @Override
     public void onUserRemovedFromChat(UserRemovedFromChatUpdate userAddedToChatUpdate) {
-        throw new UnsupportedOperationException("Sorry, operation not support");
+        log.info("Sorry, operation not support");
     }
 
     @Override
     public void onChatTitleChanged(ChatTitleChangedUpdate update) {
-        throw new UnsupportedOperationException("Sorry, operation not support");
+        log.info("Sorry, operation not support");
     }
-
-
 }

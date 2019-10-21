@@ -11,7 +11,6 @@ import lombok.ToString;
 @ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GitHubUserModel {
-
     private String login;
     private Long id;
     @JsonProperty("avatar_url")

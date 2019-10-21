@@ -36,6 +36,9 @@ plugins:
     config:
       sonar.java.source: "11"
     checks:
+      checks:
+        squid:S1068:
+          enabled: false
       squid:S00112:
         enabled: false
 checks:

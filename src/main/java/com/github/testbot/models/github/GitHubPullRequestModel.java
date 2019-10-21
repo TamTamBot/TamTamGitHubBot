@@ -92,7 +92,6 @@ public class GitHubPullRequestModel {
     }
 }
 
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Getter
 @Setter

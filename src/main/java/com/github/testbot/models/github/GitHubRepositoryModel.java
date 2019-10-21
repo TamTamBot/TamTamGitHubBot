@@ -18,7 +18,6 @@ public class GitHubRepositoryModel {
     @JsonProperty("html_url")
     private String htmlUrl;
     private String url;
-
 }
 
 
