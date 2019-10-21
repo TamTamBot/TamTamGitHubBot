@@ -23,6 +23,8 @@ plugins:
         - "java-unnecessary"
         - "java-unusedcode"
     checks:
+      com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck:
+        enabled: false
       AvoidSynchronizedAtMethodLevel:
         enabled: false
       AvoidThrowingRawExceptionTypes:
