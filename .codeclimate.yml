@@ -22,9 +22,7 @@ plugins:
         - "java-typeresolution"
         - "java-unnecessary"
         - "java-unusedcode"
-    checks:
-      com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck:
-        enabled: false
+
       AvoidSynchronizedAtMethodLevel:
         enabled: false
       AvoidThrowingRawExceptionTypes:
@@ -54,5 +52,12 @@ checks:
   return-statements:
     config:
       threshold: 10 # Have pattern-matching-like code
+
+engines:
+  checkstyle:
+    enabled: true
+    checks:
+      com.puppycrawl.tools.checkstyle.checks.imports.AvoidStarImportCheck:
+        enabled: false
 exclude_patterns:
   - "**/*.svg"
