@@ -8,6 +8,8 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotBlank;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by z0043fkv on 18.10.2019
@@ -30,20 +32,24 @@ public class UserModel {
 
     private boolean loggedOn = false;
 
-    private GitHubRepositoryModel githubRepo;
+    private Set<GitHubRepositoryModel> githubRepos = new HashSet<>();
 
     public UserModel(@NotBlank Long tamTamUserId) {
         this.tamTamUserId = tamTamUserId;
     }
 
-    public UserModel(Long tamTamUserId, GitHubRepositoryModel githubRepo) {
+    public UserModel(Long tamTamUserId, Set<GitHubRepositoryModel> githubRepos) {
         this.tamTamUserId = tamTamUserId;
-        this.githubRepo = githubRepo;
+        this.githubRepos = githubRepos;
     }
 
     public UserModel(Long tamTamUserId, String githubUserName, String githubPassword) {
         this.tamTamUserId = tamTamUserId;
         this.githubUserName = githubUserName;
         this.githubPassword = githubPassword;
+    }
+
+    public void addRepositoryToSubscriptions(GitHubRepositoryModel gitHubRepositoryModel) {
+        this.githubRepos.add(gitHubRepositoryModel);
     }
 }

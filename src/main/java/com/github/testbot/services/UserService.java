@@ -27,7 +27,7 @@ public class UserService {
     }
 
     public List<UserModel> getUsersByGithubRepoName(String repoName) {
-        return userRepository.findAllByGithubRepoFullName(repoName);
+        return userRepository.findAllByGithubReposFullName(repoName);
     }
 
 }

@@ -3,17 +3,18 @@ package com.github.testbot.parsers;
 import chat.tamtam.botapi.TamTamBotAPI;
 import chat.tamtam.botapi.exceptions.APIException;
 import chat.tamtam.botapi.exceptions.ClientException;
-import chat.tamtam.botapi.model.*;
-
+import chat.tamtam.botapi.model.CallbackAnswer;
+import chat.tamtam.botapi.model.MessageCallbackUpdate;
+import chat.tamtam.botapi.model.NewMessageBody;
+import chat.tamtam.botapi.model.Update;
 import com.github.testbot.constans.Callbacks;
 import com.github.testbot.interfaces.Parser;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
+@Component
 public class CallbackParser implements Parser {
 
-    private Logger log = LoggerFactory.getLogger(CommandParser.class);
 
     private TamTamBotAPI bot;
 

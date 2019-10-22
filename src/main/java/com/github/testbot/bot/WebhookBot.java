@@ -6,6 +6,7 @@ import chat.tamtam.botapi.exceptions.ClientException;
 import chat.tamtam.botapi.model.*;
 import com.github.testbot.interfaces.BotActions;
 import com.github.testbot.models.database.UserModel;
+import com.github.testbot.parsers.CallbackParser;
 import com.github.testbot.parsers.CommandParser;
 import com.github.testbot.services.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -23,8 +24,8 @@ public class WebhookBot implements BotActions {
 
     @Autowired
     private CommandParser commandParser;
-    /*@Autowired
-    private CallbackParser callbackParser;*/
+    @Autowired
+    private CallbackParser callbackParser;
 
     @Autowired
     private UserService userService;
@@ -94,6 +95,11 @@ public class WebhookBot implements BotActions {
 
     @Override
     public void onMessageCallback(MessageCallbackUpdate update) {
+        try {
+            callbackParser.parse(update);
+        } catch (APIException | ClientException e) {
+            e.printStackTrace();
+        }
 
     }
 

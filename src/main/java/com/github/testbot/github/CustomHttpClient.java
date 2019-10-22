@@ -34,9 +34,9 @@ public class CustomHttpClient {
         this.serializer = serializer;
     }
 
-    public GitHubRepositoryModel pingGithubRepo(final String repoName, final String userName) throws IOException, SerializationException {
+    public GitHubRepositoryModel pingGithubRepo(final String fullRepoName) throws IOException, SerializationException {
 
-        final Request request = new Request.Builder().url(GIT_HUB_ROOT_API_URL + GIT_HUB_REPOS_URL + userName + "/" + repoName).get().build();
+        final Request request = new Request.Builder().url(GIT_HUB_ROOT_API_URL + GIT_HUB_REPOS_URL + fullRepoName).get().build();
 
         Response response = client.newCall(request).execute();
         log.info(response.toString());
@@ -62,8 +62,8 @@ public class CustomHttpClient {
         }
     }
 
-    public boolean addWebhookToRepo(UserModel userModel, String repoName) throws IOException, SerializationException {
-        String apiUrl = GIT_HUB_ROOT_API_URL + GIT_HUB_REPOS_URL + userModel.getGithubUserName() + "/"+ repoName + "/hooks";
+    public boolean addWebhookToRepo(UserModel userModel, String fullRepoName) throws IOException, SerializationException {
+        String apiUrl = GIT_HUB_ROOT_API_URL + GIT_HUB_REPOS_URL + fullRepoName + "/hooks";
 
         GitHubWebhookConfig webhookConfig = new GitHubWebhookConfig(serverUrl + "/github","json", "0" );
         GitHubCreateWebhook createWebhook = new GitHubCreateWebhook("web", true,
