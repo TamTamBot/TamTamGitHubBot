@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -174,13 +175,19 @@ public class CommandParser implements Parser, Commands {
 
     @Override
     public void list(long senderId) throws APIException, ClientException {
-        StringBuilder builder = new StringBuilder("List of your connected repositories:\n\r\n");
+        StringBuilder builder = new StringBuilder();
         UserModel user = userService.getUser(senderId);
-        user.getGithubRepos().forEach(gitHubRepositoryModel -> {
-            log.info("REPO " + user);
-            builder.append("name: ").append(gitHubRepositoryModel.getFullName()).append("\n\rurl: ")
+        Set<GitHubRepositoryModel> userSubscriptions = user.getGithubRepos();
+        if (userSubscriptions.isEmpty()) {
+            builder.append("List of your connected repositories is empty!");
+        } else {
+            builder.append("List of your connected repositories:\n\r\n");
+            user.getGithubRepos().forEach(gitHubRepositoryModel -> {
+                log.info("REPO " + user);
+                builder.append("name: ").append(gitHubRepositoryModel.getFullName()).append("\n\rurl: ")
                         .append(gitHubRepositoryModel.getHtmlUrl()).append("\n\n");
-        });
+            });
+        }
         builder.append("\nTo add new repositories use command /subscribe");
         log.info("LIST " + builder.toString());
         sendSimpleMessage(senderId, builder.toString());
