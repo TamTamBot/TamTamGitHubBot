@@ -49,11 +49,13 @@ public class WebhookGitHub implements GitHubActions {
                     defaultEvent(pushEvent);
                     break;
                 case GITHUB_EVENT_TYPE_COMMIT_COMMENT:
-                    GitHubCommitCommentEvent commitCommentEvent = serializer.deserialize(body, GitHubCommitCommentEvent.class);
+                    GitHubCommitCommentEvent commitCommentEvent = serializer
+                            .deserialize(body, GitHubCommitCommentEvent.class);
                     defaultEvent(commitCommentEvent);
                     break;
                 case GITHUB_EVENT_TYPE_PULL_REQUEST:
-                    GitHubPullRequestEvent pullRequestEvent = serializer.deserialize(body, GitHubPullRequestEvent.class);
+                    GitHubPullRequestEvent pullRequestEvent = serializer
+                            .deserialize(body, GitHubPullRequestEvent.class);
                     defaultEvent(pullRequestEvent);
                     break;
                 default:
