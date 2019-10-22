@@ -9,9 +9,12 @@ import chat.tamtam.botapi.model.NewMessageBody;
 import chat.tamtam.botapi.model.Update;
 import com.github.testbot.constans.Callbacks;
 import com.github.testbot.interfaces.Parser;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class CallbackParser implements Parser {
 

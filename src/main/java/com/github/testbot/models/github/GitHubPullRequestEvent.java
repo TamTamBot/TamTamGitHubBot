@@ -9,9 +9,15 @@ import lombok.Setter;
 @Getter
 @Setter
 public class GitHubPullRequestEvent implements GitHubEvents {
-    private String action; // assigned, unassigned, review_requested,
-    // review_request_removed, labeled, unlabeled, opened, edited,
-    // closed, ready_for_review, locked, unlocked, or reopened
+
+    /**
+     * Action states.
+     * assigned,unassigned,review_requested,
+     * review_request_removed, labeled, unlabeled, opened, edited,
+     * closed, ready_for_review, locked, unlocked, or reopened.
+     */
+
+    private String action;
     private Integer number;
     @JsonProperty("pull_request")
     private GitHubPullRequestModel pullRequest;
@@ -22,6 +28,6 @@ public class GitHubPullRequestEvent implements GitHubEvents {
     public String toString() {
         return "Pull request\n\rAction " + action + "\n\rPull request " + pullRequest.getHtmlUrl() + "\n\rwith title: " +
                 pullRequest.getTitle() + "\n\rand comment: " + pullRequest.getBody() + "\n\rBy user: "
-                + sender.getLogin() +"\n\rTo repository: " + repository.getFullName();
+                + sender.getLogin() + "\n\rTo repository: " + repository.getFullName();
     }
 }

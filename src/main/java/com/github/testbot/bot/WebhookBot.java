@@ -98,50 +98,47 @@ public class WebhookBot implements BotActions {
         try {
             callbackParser.parse(update);
         } catch (APIException | ClientException e) {
-            e.printStackTrace();
+            log.error("Callback error", e);
         }
-
     }
 
     @Override
     public void onMessageEdited(MessageEditedUpdate update) {
-
+        log.info("Sorry, operation not support");
     }
 
     @Override
     public void onMessageRemoved(MessageRemovedUpdate update) {
-
+        log.info("Sorry, operation not support");
     }
 
     @Override
     public void onBotAddedToChat(BotAddedToChatUpdate update) {
-
+        log.info("Sorry, operation not support");
     }
 
     @Override
     public void onBotStarted(BotStartedUpdate update) {
-
+        log.info("Sorry, operation not support");
     }
 
     @Override
     public void onBotRemovedFromChat(BotRemovedFromChatUpdate update) {
-
+        log.info("Sorry, operation not support");
     }
 
     @Override
     public void onUserAddedToChat(UserAddedToChatUpdate userAddedToChatUpdate) {
-
+        log.info("Sorry, operation not support");
     }
 
     @Override
     public void onUserRemovedFromChat(UserRemovedFromChatUpdate userAddedToChatUpdate) {
-
+        log.info("Sorry, operation not support");
     }
 
     @Override
     public void onChatTitleChanged(ChatTitleChangedUpdate update) {
-
+        log.info("Sorry, operation not support");
     }
-
-
 }

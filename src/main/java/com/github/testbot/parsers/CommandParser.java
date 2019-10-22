@@ -15,7 +15,6 @@ import com.github.testbot.models.github.GitHubRepositoryModel;
 import com.github.testbot.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -35,14 +34,14 @@ public class CommandParser implements Parser, Commands {
 
     private final CustomHttpClient httpClient;
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
     private final ConcurrentMap<Long, ChatStates> chatState = new ConcurrentHashMap<>();
 
-    public CommandParser(final TamTamBotAPI bot, final CustomHttpClient httpClient) {
+    public CommandParser(final TamTamBotAPI bot, final CustomHttpClient httpClient, UserService userService) {
         this.bot = bot;
         this.httpClient = httpClient;
+        this.userService = userService;
     }
 
     @Override
@@ -51,6 +50,10 @@ public class CommandParser implements Parser, Commands {
         String messageText = createdUpdate.getMessage().getBody().getText();
         Long senderId = createdUpdate.getMessage().getSender().getUserId();
         UserModel user = userService.getUser(senderId);
+        if (messageText == null) {
+            log.error("Message text is empty in update {}", update);
+            return;
+        }
         if (messageText.startsWith("/")) {
             String commandBody = messageText.substring(1).toUpperCase();
             log.info("Command " + commandBody);
@@ -168,7 +171,6 @@ public class CommandParser implements Parser, Commands {
         chatState.put(senderId, DEFAULT);
         sendSimpleMessage(senderId, "Successful subscription to repo: " + repository.getName());
     }
-
 
     @Override
     public void list(long senderId) throws APIException, ClientException {

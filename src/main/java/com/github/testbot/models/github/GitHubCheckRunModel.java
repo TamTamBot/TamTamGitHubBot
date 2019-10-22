@@ -33,8 +33,6 @@ public class GitHubCheckRunModel {
     @JsonProperty("pull_requests")
     private List<SimplePullRequest> pullRequests;
 
-
-
     @Getter
     @Setter
     @ToString
@@ -86,5 +84,4 @@ public class GitHubCheckRunModel {
             }
         }
     }
-
 }

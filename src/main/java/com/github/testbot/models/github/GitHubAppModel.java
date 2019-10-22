@@ -24,20 +24,6 @@ public class GitHubAppModel {
     private String createdAt;
     @JsonProperty("updated_at")
     private String updatedAt;
-//    private Permission permission;
     private List<String> events;
-/*
-    @Getter
-    @Setter
-    @ToString
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private static class Permission{
-        private String metadata;
-        private String contents;
-        private String issues;
-        @JsonProperty("single_file")
-        private String singleFile;
-    }*/
-
 
 }
