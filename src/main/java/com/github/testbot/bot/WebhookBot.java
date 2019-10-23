@@ -35,8 +35,8 @@ public class WebhookBot implements BotActions {
         List<BotCommand> commands = Arrays.asList(
                 new BotCommand(LOGIN.getCommandName()).description(LOGIN.getDescription()),
                 new BotCommand(SUBSCRIBE.getCommandName()).description(SUBSCRIBE.getDescription()),
-                new BotCommand(LIST.getCommandName()).description(LIST.getDescription()));
-                new BotCommand(HELP.getCommandName()).description(HELP.getDescription());
+                new BotCommand(LIST.getCommandName()).description(LIST.getDescription()),
+                new BotCommand(HELP.getCommandName()).description(HELP.getDescription()));
         bot.editMyInfo(new BotPatch().name("GithubNotifyBot").commands(commands)).execute();
     }
 

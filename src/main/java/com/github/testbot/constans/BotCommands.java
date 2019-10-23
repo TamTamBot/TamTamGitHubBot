@@ -2,7 +2,7 @@ package com.github.testbot.constans;
 
 public enum BotCommands {
 
-    HELP ("help", "Help command"),
+    HELP ("help", "help command"),
     LOGIN ("login", "Login to github"),
     SUBSCRIBE("subscribe", "Subscribe to github repo news"),
     LIST("list", "List of your connected GitHub repositories"),

@@ -8,6 +8,7 @@ import chat.tamtam.botapi.model.MessageCallbackUpdate;
 import chat.tamtam.botapi.model.NewMessageBody;
 import chat.tamtam.botapi.model.Update;
 import com.github.testbot.constans.Callbacks;
+import com.github.testbot.interfaces.BotTexts;
 import com.github.testbot.interfaces.Parser;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -26,7 +27,8 @@ public class CallbackParser implements Parser {
     }
 
     private void help(String callbackId) throws ClientException, APIException {
-        CallbackAnswer answer = new CallbackAnswer().message(new NewMessageBody("hello calback", null, null));
+        CallbackAnswer answer = new CallbackAnswer().message(new NewMessageBody(BotTexts.HELP_MORE_INFORMATION_TEXT,
+                null, null));
         bot.answerOnCallback(answer, callbackId).execute();
     }
 

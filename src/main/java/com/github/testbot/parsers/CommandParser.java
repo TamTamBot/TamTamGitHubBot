@@ -8,6 +8,7 @@ import chat.tamtam.botapi.model.*;
 import com.github.testbot.constans.BotCommands;
 import com.github.testbot.constans.ChatStates;
 import com.github.testbot.github.CustomHttpClient;
+import com.github.testbot.interfaces.BotTexts;
 import com.github.testbot.interfaces.Commands;
 import com.github.testbot.interfaces.Parser;
 import com.github.testbot.models.database.UserModel;
@@ -154,12 +155,12 @@ public class CommandParser implements Parser, Commands {
 
     @Override
     public void help(long senderId) throws ClientException, APIException {
-        bot.sendMessage(new NewMessageBody("help command",
+        bot.sendMessage(new NewMessageBody(BotTexts.HELP_COMMAND_TEXT,
                 Collections.singletonList(new InlineKeyboardAttachmentRequest(
                         new InlineKeyboardAttachmentRequestPayload(
                                 Collections.singletonList(
                                         Collections.singletonList(
-                                                new CallbackButton(HELP.name(), "help")))))), null))
+                                                new CallbackButton(HELP.name(), BotTexts.MORE_INFO_CALLBACK_BUTTON)))))), null))
                 .userId(senderId).execute();
     }
 
