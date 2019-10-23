@@ -15,5 +15,5 @@ public interface MongoUserRepository extends MongoRepository<UserModel, String> 
 
     public List<UserModel> findAllByTamTamUserId(Long id);
 
-    public List<UserModel> findAllByRepository_FullName(String fullName);
+    public List<UserModel> findAllByRepository_FullName(String fullName); //Need to fix
 }
