@@ -37,16 +37,15 @@ public class CustomHttpClient {
     /**
      * Ping GitHub repository to verify the that the repository exists and the correct webhook exists.
      *
-     * @param repoName full repository name to subscribe
+     * @param fullRepoName full repository name to subscribe
      * @return repository model. To more information see {@link GitHubRepositoryModel}
      * @throws IOException when errors occur when sending a request to Github
      * @throws SerializationException if response body can not be deserialize to {@link GitHubRepositoryModel}
      */
-    public GitHubRepositoryModel pingGithubRepo(final String repoName)
-            throws IOException, SerializationException {
 
-        final Request request = new Request.Builder().url(GIT_HUB_ROOT_API_URL + GIT_HUB_REPOS_URL
-                + repoName).get().build();
+    public GitHubRepositoryModel pingGithubRepo(final String fullRepoName) throws IOException, SerializationException {
+
+        final Request request = new Request.Builder().url(GIT_HUB_ROOT_API_URL + GIT_HUB_REPOS_URL + fullRepoName).get().build();
 
         Response response = client.newCall(request).execute();
         log.info(response.toString());
@@ -63,10 +62,10 @@ public class CustomHttpClient {
      * @return
      * @throws IOException
      */
-    public boolean checkGithubCredentials(UserModel userModel) throws IOException {
-        String credential = Credentials.basic(userModel.getGithubUserName(), userModel.getGithubPassword());
-        final Request request = new Request.Builder().url(GIT_HUB_ROOT_API_URL).get()
-                .header("Authorization", credential).build();
+    public boolean checkAccessTokenForWebhooksOperations(UserModel userModel) throws IOException {
+        String credential = Credentials.basic(userModel.getGithubUserName(), userModel.getAccessToken());
+        final Request request = new Request.Builder().url(GIT_HUB_ROOT_API_URL + "user")
+                .get().header("Authorization", credential).build();
         Response response = client.newCall(request).execute();
         log.info(response.toString());
         if (response.code() == HttpStatus.OK.value()) {
@@ -77,9 +76,8 @@ public class CustomHttpClient {
         }
     }
 
-    public boolean addWebhookToRepo(UserModel userModel, String repoName) throws IOException {
-        String apiUrl = GIT_HUB_ROOT_API_URL + GIT_HUB_REPOS_URL +
-                userModel.getGithubUserName() + "/" + repoName + "/hooks";
+    public boolean addWebhookToRepo(UserModel userModel, String fullRepoName) throws IOException {
+        String apiUrl = GIT_HUB_ROOT_API_URL + GIT_HUB_REPOS_URL + fullRepoName + "/hooks";
 
         GitHubWebhookConfig webhookConfig = new GitHubWebhookConfig(serverUrl + "/github", "json", "0");
         GitHubCreateWebhook createWebhook = new GitHubCreateWebhook("web", true,
@@ -93,7 +91,7 @@ public class CustomHttpClient {
         }
         RequestBody body = RequestBody.create(
                 MediaType.parse("application/json; charset=utf-8"), json);
-        String credential = Credentials.basic(userModel.getGithubUserName(), userModel.getGithubPassword());
+        String credential = Credentials.basic(userModel.getGithubUserName(), userModel.getAccessToken());
         final Request request = new Request.Builder().url(apiUrl)
                 .post(body).header("Authorization", credential).build();
         Response response = client.newCall(request).execute();

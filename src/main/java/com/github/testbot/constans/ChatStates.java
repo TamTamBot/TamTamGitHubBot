@@ -1,8 +1,8 @@
 package com.github.testbot.constans;
 
 public enum ChatStates {
-    LOGIN_USERNAME,
-    LOGIN_PASSWORD,
+    SET_TOKEN,
+    SET_USERNAME,
     SUBSCRIBE_TO_REPO,
     DEFAULT
 }

@@ -5,8 +5,10 @@ import chat.tamtam.botapi.exceptions.APIException;
 import chat.tamtam.botapi.exceptions.ClientException;
 import com.github.testbot.bot.WebhookBot;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 
 @Configuration
 public class BotConfiguration {
@@ -18,6 +20,7 @@ public class BotConfiguration {
     private String botToken;
 
     @Bean(name = "bot")
+    @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
     public TamTamBotAPI getTamTamBot() {
         return TamTamBotAPI.create(botToken);
     }

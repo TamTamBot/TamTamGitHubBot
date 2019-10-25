@@ -8,6 +8,7 @@ import chat.tamtam.botapi.model.*;
 import com.github.testbot.constans.BotCommands;
 import com.github.testbot.constans.ChatStates;
 import com.github.testbot.github.CustomHttpClient;
+import com.github.testbot.interfaces.BotTexts;
 import com.github.testbot.interfaces.Commands;
 import com.github.testbot.interfaces.Parser;
 import com.github.testbot.models.database.UserModel;
@@ -19,6 +20,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -37,7 +40,7 @@ public class CommandParser implements Parser, Commands {
 
     private final ConcurrentMap<Long, ChatStates> chatState = new ConcurrentHashMap<>();
 
-    public CommandParser(final TamTamBotAPI bot, final CustomHttpClient httpClient, UserService userService) {
+    public CommandParser(final TamTamBotAPI bot, final CustomHttpClient httpClient, final UserService userService) {
         this.bot = bot;
         this.httpClient = httpClient;
         this.userService = userService;
@@ -58,6 +61,7 @@ public class CommandParser implements Parser, Commands {
         }
     }
 
+    @SuppressWarnings("Duplicates")
     private void parseDefaultText(MessageCreatedUpdate update) throws APIException, ClientException {
         final String messageText = update.getMessage().getBody().getText();
         final Long senderId = update.getMessage().getSender().getUserId();
@@ -66,50 +70,58 @@ public class CommandParser implements Parser, Commands {
             log.error("Message text is empty in update {}", update);
             return;
         }
+
         switch (chatState.getOrDefault(senderId, ChatStates.DEFAULT)) {
-            case LOGIN_USERNAME:
+            case SET_USERNAME:
                 user.setGithubUserName(messageText);
                 userService.saveUser(user);
-                sendSimpleMessage(senderId, "Enter your GitHub password");
-                chatState.put(senderId, LOGIN_PASSWORD);
+                sendSimpleMessage(senderId, "Enter personal access tokens with `admin:repo_hook` scope:");
+                chatState.put(senderId, SET_TOKEN);
                 break;
-            case LOGIN_PASSWORD:
-                user.setGithubPassword(messageText);
-                sendSimpleMessage(senderId, "Ok! Check creds...");
+
+            case SET_TOKEN:
+                user.setAccessToken(messageText);
+                sendSimpleMessage(senderId, "Ok! Token validation...");
                 try {
-                    if (httpClient.checkGithubCredentials(user)) {
+                    if (httpClient.checkAccessTokenForWebhooksOperations(user)) {
                         sendSimpleMessage(senderId, "Success! Now you can subscribe to repos!");
                         user.setLoggedOn(true);
                         userService.saveUser(user);
                     } else {
-                        sendSimpleMessage(senderId, "Bad credentials :( Plz, try to login with another creds");
-                        user.setGithubUserName(null);
-                        user.setGithubPassword(null);
+                        sendSimpleMessage(senderId, "Bad token :(");
                         user.setLoggedOn(false);
                         userService.saveUser(user);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
+                } finally {
+                    chatState.put(senderId, ChatStates.DEFAULT);
                 }
-                chatState.put(senderId, ChatStates.DEFAULT);
                 break;
             case SUBSCRIBE_TO_REPO:
                 try {
+                    List<UserModel> githubWebhookUsers = userService.getUsersByGithubRepoName(messageText);
                     GitHubRepositoryModel repository = httpClient.pingGithubRepo(messageText);
-                    user.setGithubRepo(repository);
-                    if (httpClient.addWebhookToRepo(user, messageText)) {
-                        userService.saveUser(user);
-                        chatState.put(senderId, DEFAULT);
-                        sendSimpleMessage(senderId, "Successful subscription to repo: " + messageText);
+                    if (githubWebhookUsers.isEmpty()) {
+                        if (user.isLoggedOn()) {
+                            if (httpClient.addWebhookToRepo(user, messageText)) {
+                                subscribeToRepo(senderId, user, repository);
+                            } else {
+                                sendSimpleMessage(senderId, "Problem with setting webhook to repo: " + messageText);
+                            }
+                        } else {
+                            sendSimpleMessage(senderId,
+                                    "You not set github access token. Please, set token.\nCommand: /set_token");
+                        }
                     } else {
-                        sendSimpleMessage(senderId, "Problem with setting webhook to repo: " + messageText);
+                        subscribeToRepo(senderId, user, repository);
                     }
-
                 } catch (IOException | SerializationException | IllegalStateException e) {
                     log.error("Send to Github ex", e);
                     sendSimpleMessage(senderId, "Sorry, something " +
-                            "went wrong when adding repository \"" + messageText + "\". Check the name is correct" +
-                            " and is webhooks are enabled for our repository");
+                            "went wrong when adding repository \"" + messageText + "\". Check the name is correct");
+                } finally {
+                    chatState.put(senderId, ChatStates.DEFAULT);
                 }
                 break;
             default:
@@ -117,10 +129,11 @@ public class CommandParser implements Parser, Commands {
         }
     }
 
+
+    @SuppressWarnings("Duplicates")
     private void parseCommand(MessageCreatedUpdate update) throws APIException, ClientException {
         final String messageText = update.getMessage().getBody().getText();
         final Long senderId = update.getMessage().getSender().getUserId();
-        final UserModel user = userService.getUser(senderId);
         if (messageText == null) {
             log.error("Message text is empty in update {}", update);
             return;
@@ -138,17 +151,14 @@ public class CommandParser implements Parser, Commands {
                 chatState.put(senderId, ChatStates.DEFAULT);
                 help(senderId);
                 break;
-            case LOGIN:
-                chatState.put(senderId, LOGIN_USERNAME);
-                sendSimpleMessage(senderId, "Enter your GitHub username");
+            case SET_TOKEN:
+                chatState.put(senderId, SET_USERNAME);
+                sendSimpleMessage(senderId, "Enter your GitHub username:");
                 break;
             case SUBSCRIBE:
-                if (user.isLoggedOn()) {
-                    chatState.put(senderId, SUBSCRIBE_TO_REPO);
-                    sendSimpleMessage(senderId, "Enter full GitHub repository name");
-                } else {
-                    sendSimpleMessage(senderId, "You not logged in github. Please, login to github.\nCommand: /login");
-                }
+                log.info("UPD " + update.toString());
+                chatState.put(senderId, SUBSCRIBE_TO_REPO);
+                sendSimpleMessage(senderId, "Enter full GitHub repository name (username/repository)");
                 break;
             case LIST:
                 chatState.put(senderId, ChatStates.DEFAULT);
@@ -157,40 +167,52 @@ public class CommandParser implements Parser, Commands {
 
             default:
                 NewMessageLink link = new NewMessageLink(MessageLinkType.REPLY, update.getMessage().getBody().getMid());
-                NewMessageBody body = new NewMessageBody("Sorry, I don't know command: " + messageText, null, link);
+                NewMessageBody body = new NewMessageBody("Sorry, I don't know command: " + update.getMessage().getBody().getText(), null, link);
                 try {
                     bot.sendMessage(body).userId(senderId).execute();
                 } catch (ClientException | APIException e) {
-                    e.printStackTrace();
+                    log.error("Can not send default message", e);
                 }
+
         }
     }
 
     @Override
     public void help(long senderId) throws ClientException, APIException {
-        bot.sendMessage(new NewMessageBody("help command",
+        bot.sendMessage(new NewMessageBody(BotTexts.HELP_COMMAND_TEXT,
                 Collections.singletonList(new InlineKeyboardAttachmentRequest(
                         new InlineKeyboardAttachmentRequestPayload(
                                 Collections.singletonList(
                                         Collections.singletonList(
-                                                new CallbackButton(HELP.name(), "help")))))), null))
+                                                new CallbackButton(HELP.name(), BotTexts.MORE_INFO_CALLBACK_BUTTON)))))), null))
                 .userId(senderId).execute();
     }
 
     @Override
-    public void subscribeToRepo(long senderId) {
-
+    public void subscribeToRepo(long senderId, UserModel user, GitHubRepositoryModel repository)
+            throws ClientException, APIException {
+        user.addRepositoryToSubscriptions(repository);
+        userService.saveUser(user);
+        chatState.put(senderId, DEFAULT);
+        sendSimpleMessage(senderId, "Successful subscription to repo: " + repository.getName());
     }
 
     @Override
     public void list(long senderId) throws APIException, ClientException {
-        StringBuilder builder = new StringBuilder("List of your connected repositories:\n\r");
-        userService.getUsersByTamTamUserId(senderId).forEach(user -> {
-            log.info("REPO " + user);
-            builder.append("name: ").append(user.getGithubRepo().getFullName()).append("\n\r  url: ")
-                    .append(user.getGithubRepo().getHtmlUrl()).append("\n\r");
-        });
-        builder.append("To add new repositories use command /reg");
+        StringBuilder builder = new StringBuilder();
+        UserModel user = userService.getUser(senderId);
+        Set<GitHubRepositoryModel> userSubscriptions = user.getGithubRepos();
+        if (userSubscriptions.isEmpty()) {
+            builder.append("List of your connected repositories is empty!");
+        } else {
+            builder.append("List of your connected repositories:\n\r");
+            user.getGithubRepos().forEach(gitHubRepositoryModel -> {
+                log.info("REPO " + user);
+                builder.append("name: ").append(gitHubRepositoryModel.getFullName()).append("\n\rurl: ")
+                        .append(gitHubRepositoryModel.getHtmlUrl()).append("\n");
+            });
+        }
+        builder.append("\nTo add new repositories use command /subscribe");
         log.info("LIST " + builder.toString());
         sendSimpleMessage(senderId, builder.toString());
     }
