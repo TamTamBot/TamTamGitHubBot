@@ -12,7 +12,7 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-public class GitHubPullRequestModel {
+final class GitHubPullRequestModel {
 
     private String url;
     @JsonProperty("html_url")
@@ -84,18 +84,19 @@ public class GitHubPullRequestModel {
         private Link statuses;
     }
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    @Getter
-    @Setter
-    private static final class Link {
-        private String href;
-    }
+
+}
+@JsonIgnoreProperties(ignoreUnknown = true)
+@Getter
+@Setter
+final class Link {
+    private String href;
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Getter
 @Setter
-class Label {
+final class Label {
     private String url;
     private String name;
     private String description;
@@ -104,7 +105,7 @@ class Label {
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Getter
 @Setter
-class SimpleCommit {
+final class SimpleCommit {
     private String label;
     private String ref;
     private String sha;

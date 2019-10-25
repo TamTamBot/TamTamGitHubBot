@@ -1,15 +1,68 @@
 package com.github.testbot.models.github;
 
-public class GitHubPullRequestReviewEvent {
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.github.testbot.models.database.UserModel;
+import lombok.Getter;
+import lombok.Setter;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+@Getter
+@Setter
+public class GitHubPullRequestReviewEvent implements GitHubEvents {
 
     private String action;
+    private Review review;
+    @JsonProperty("pull_request")
+    private GitHubPullRequestModel pullRequest;
+    private GitHubRepositoryModel repository;
+    private GitHubUserModel sender;
+
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @Getter
+    @Setter
+    private static class Review {
+        @JsonProperty("node_id")
+        private String nodeId;
+        private GitHubUserModel user;
+        private String body;
+        @JsonProperty("commit_id")
+        private String commitId;
+        @JsonProperty("submitted_at")
+        private String submittedAt;
+        private String state;
+        @JsonProperty("html_url")
+        private String htmlUrl;
+        @JsonProperty("pull_request_url")
+        private String pullRequestUrl;
+        @JsonProperty("_links")
+        private Links links;
+
+        @JsonIgnoreProperties(ignoreUnknown = true)
+        @Getter
+        @Setter
+        private static final class Links {
+            private Link html;
+            @JsonProperty("pull_request")
+            private Link pullRequest;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Review to your pull request " + pullRequest.getHtmlUrl() + "\n\r" +
+                "Review: " + review.getBody() + "\n\r" +
+                "By user " + review.getUser().getLogin() +
+                "To repository " + repository.getFullName();
+    }
 
     /*
     {
   "action": "submitted",
   "review": {
     "id": 237895671,
-    "node_id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3MjM3ODk1Njcx",
+    "node_id": "Mcommit_idDE3OlB1bGxSZXF1ZXN0UmV2aWV3MjM3ODk1Njcx",
     "user": {
       "login": "Codertocat",
       "id": 21031067,

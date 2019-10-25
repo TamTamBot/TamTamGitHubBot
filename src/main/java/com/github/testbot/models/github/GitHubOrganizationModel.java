@@ -8,7 +8,7 @@ import lombok.Setter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Getter
 @Setter
-public class GitHubOrganizationModel {
+class GitHubOrganizationModel {
     private String login;
     private String url;
     @JsonProperty("repos_url")

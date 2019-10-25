@@ -49,12 +49,23 @@ public class WebhookGitHub implements GitHubActions {
                     defaultEvent(pushEvent);
                     break;
                 case GITHUB_EVENT_TYPE_COMMIT_COMMENT:
-                    GitHubCommitCommentEvent commitCommentEvent = serializer.deserialize(body, GitHubCommitCommentEvent.class);
+                    GitHubCommitCommentEvent commitCommentEvent =
+                            serializer.deserialize(body, GitHubCommitCommentEvent.class);
                     defaultEvent(commitCommentEvent);
                     break;
                 case GITHUB_EVENT_TYPE_PULL_REQUEST:
                     GitHubPullRequestEvent pullRequestEvent = serializer.deserialize(body, GitHubPullRequestEvent.class);
                     defaultEvent(pullRequestEvent);
+                    break;
+                case GITHUB_EVENT_TYPE_PULL_REQUEST_REVIEW:
+                    GitHubPullRequestReviewEvent pullRequestReviewEvent =
+                            serializer.deserialize(body, GitHubPullRequestReviewEvent.class);
+                    defaultEvent(pullRequestReviewEvent);
+                    break;
+                case GITHUB_EVENT_TYPE_PULL_REQUEST_REVIEW_COMMENT:
+                    GitHubPullRequestReviewCommentEvent pullRequestReviewCommentEvent =
+                            serializer.deserialize(body, GitHubPullRequestReviewCommentEvent.class);
+                    defaultEvent(pullRequestReviewCommentEvent);
                     break;
                 default:
                     log.info("Unknown command " + eventType);

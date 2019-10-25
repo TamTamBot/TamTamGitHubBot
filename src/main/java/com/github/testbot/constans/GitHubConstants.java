@@ -36,6 +36,10 @@ public interface GitHubConstants {
 
     String GITHUB_EVENT_TYPE_PULL_REQUEST = "pull_request";
 
+    String GITHUB_EVENT_TYPE_PULL_REQUEST_REVIEW = "pull_request_review";
+
+    String GITHUB_EVENT_TYPE_PULL_REQUEST_REVIEW_COMMENT = "pull_request_review_comment";
+
     String GIT_HUB_ROOT_URL = "https://github.com/";
 
     String GIT_HUB_ROOT_API_URL = "https://api.github.com/";

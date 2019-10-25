@@ -10,7 +10,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Getter
 @Setter
-public class GitHubCommitModel {
+class GitHubCommitModel {
 
     private String url;
     private String sha;

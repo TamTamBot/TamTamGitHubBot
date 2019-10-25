@@ -18,12 +18,14 @@ import javax.validation.Valid;
 @RestController
 public class MainController {
 
-    @Autowired
-    private WebhookBot webhookBot;
+    private final WebhookBot webhookBot;
 
-    @Autowired
-    private WebhookGitHub webhookGitHub;
+    private final WebhookGitHub webhookGitHub;
 
+    public MainController(WebhookBot webhookBot, WebhookGitHub webhookGitHub) {
+        this.webhookBot = webhookBot;
+        this.webhookGitHub = webhookGitHub;
+    }
 
 
     @PostMapping("/tamtam")

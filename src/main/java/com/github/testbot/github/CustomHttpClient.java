@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 
 import static com.github.testbot.constans.GitHubConstants.*;
 
@@ -67,7 +68,7 @@ public class CustomHttpClient {
 
         GitHubWebhookConfig webhookConfig = new GitHubWebhookConfig(serverUrl + "/github","json", "0" );
         GitHubCreateWebhook createWebhook = new GitHubCreateWebhook("web", true,
-                Arrays.asList("push", "pull_request", "commit_comment"), webhookConfig);
+                Collections.singletonList("*"), webhookConfig);
         ObjectMapper mapper = new ObjectMapper();
         String json = "";
         try {
