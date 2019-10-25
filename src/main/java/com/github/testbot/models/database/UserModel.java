@@ -30,6 +30,8 @@ public class UserModel {
 
     private String githubPassword;
 
+    private String accessToken;
+
     private boolean loggedOn = false;
 
     private Set<GitHubRepositoryModel> githubRepos = new HashSet<>();

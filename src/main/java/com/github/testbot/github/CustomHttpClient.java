@@ -48,9 +48,10 @@ public class CustomHttpClient {
         throw new IllegalStateException("Incorrect response code in " + response.toString());
     }
 
-    public boolean checkGithubCredentials(UserModel userModel) throws IOException {
-        String credential = Credentials.basic(userModel.getGithubUserName(), userModel.getGithubPassword());
-        final Request request = new Request.Builder().url(GIT_HUB_ROOT_API_URL).get().header("Authorization", credential).build();
+    public boolean checkAccessTokenForWebhooksOperations(UserModel userModel) throws IOException {
+        String credential = Credentials.basic(userModel.getGithubUserName(), userModel.getAccessToken());
+        final Request request = new Request.Builder().url(GIT_HUB_ROOT_API_URL + "user")
+                .get().header("Authorization", credential).build();
         Response response = client.newCall(request).execute();
         log.info(response.toString());
         if (response.code() == HttpStatus.OK.value()) {
@@ -77,7 +78,7 @@ public class CustomHttpClient {
         }
         RequestBody body = RequestBody.create(
                 MediaType.parse("application/json; charset=utf-8"), json);
-        String credential = Credentials.basic(userModel.getGithubUserName(), userModel.getGithubPassword());
+        String credential = Credentials.basic(userModel.getGithubUserName(), userModel.getAccessToken());
         final Request request = new Request.Builder().url(apiUrl)
                 .post(body).header("Authorization", credential).build();
         Response response = client.newCall(request).execute();

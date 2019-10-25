@@ -1,6 +1,7 @@
 package com.github.testbot.parsers;
 
 import chat.tamtam.botapi.TamTamBotAPI;
+import chat.tamtam.botapi.TamTamUploadAPI;
 import chat.tamtam.botapi.exceptions.APIException;
 import chat.tamtam.botapi.exceptions.ClientException;
 import chat.tamtam.botapi.exceptions.SerializationException;
@@ -18,6 +19,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -40,7 +43,7 @@ public class CommandParser implements Parser, Commands {
 
     private final ConcurrentMap<Long, ChatStates> chatState = new ConcurrentHashMap<>();
 
-    public CommandParser(final TamTamBotAPI bot, final CustomHttpClient httpClient, UserService userService) {
+    public CommandParser(final TamTamBotAPI bot, final CustomHttpClient httpClient, final UserService userService) {
         this.bot = bot;
         this.httpClient = httpClient;
         this.userService = userService;
@@ -70,9 +73,9 @@ public class CommandParser implements Parser, Commands {
                     chatState.put(senderId, ChatStates.DEFAULT);
                     help(senderId);
                     break;
-                case LOGIN:
-                    chatState.put(senderId, LOGIN_USERNAME);
-                    sendSimpleMessage(senderId, "Enter your GitHub username");
+                case SET_TOKEN:
+                    chatState.put(senderId, SET_USERNAME);
+                    sendSimpleMessage(senderId, "Enter your GitHub username:");
                     break;
                 case SUBSCRIBE:
                     log.info("UPD " + update.toString());
@@ -96,22 +99,23 @@ public class CommandParser implements Parser, Commands {
             }
         } else {
             switch (chatState.getOrDefault(senderId, ChatStates.DEFAULT)) {
-                case LOGIN_USERNAME:
+                case SET_USERNAME:
                     user.setGithubUserName(messageText);
                     userService.saveUser(user);
-                    sendSimpleMessage(senderId, "Enter your GitHub password");
-                    chatState.put(senderId, LOGIN_PASSWORD);
+                    sendSimpleMessage(senderId, "Enter personal access tokens with `admin:repo_hook` scope:");
+                    chatState.put(senderId, SET_TOKEN);
                     break;
-                case LOGIN_PASSWORD:
-                    user.setGithubPassword(messageText);
-                    sendSimpleMessage(senderId, "Ok! Check creds...");
+
+                case SET_TOKEN:
+                    user.setAccessToken(messageText);
+                    sendSimpleMessage(senderId, "Ok! Token validation...");
                     try {
-                        if (httpClient.checkGithubCredentials(user)) {
+                        if (httpClient.checkAccessTokenForWebhooksOperations(user)) {
                             sendSimpleMessage(senderId, "Success! Now you can subscribe to repos!");
                             user.setLoggedOn(true);
                             userService.saveUser(user);
                         } else {
-                            sendSimpleMessage(senderId, "Bad credentials :( Plz, try to login with another creds");
+                            sendSimpleMessage(senderId, "Bad token :(");
                             user.setLoggedOn(false);
                             userService.saveUser(user);
                         }
@@ -133,7 +137,8 @@ public class CommandParser implements Parser, Commands {
                                     sendSimpleMessage(senderId, "Problem with setting webhook to repo: " + messageText);
                                 }
                             } else {
-                                sendSimpleMessage(senderId, "You not logged in github. Please, login to github.\nCommand: /login");
+                                sendSimpleMessage(senderId,
+                                        "You not set github access token. Please, set token.\nCommand: /set_token");
                             }
                         } else {
                             subscribeToRepo(senderId, user, repository);
@@ -182,11 +187,11 @@ public class CommandParser implements Parser, Commands {
         if (userSubscriptions.isEmpty()) {
             builder.append("List of your connected repositories is empty!");
         } else {
-            builder.append("List of your connected repositories:\n\r\n");
+            builder.append("List of your connected repositories:\n\r");
             user.getGithubRepos().forEach(gitHubRepositoryModel -> {
                 log.info("REPO " + user);
                 builder.append("name: ").append(gitHubRepositoryModel.getFullName()).append("\n\rurl: ")
-                        .append(gitHubRepositoryModel.getHtmlUrl()).append("\n\n");
+                        .append(gitHubRepositoryModel.getHtmlUrl()).append("\n");
             });
         }
         builder.append("\nTo add new repositories use command /subscribe");
