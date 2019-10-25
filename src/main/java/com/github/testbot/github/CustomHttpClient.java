@@ -35,6 +35,15 @@ public class CustomHttpClient {
         this.serializer = serializer;
     }
 
+    /**
+     * Ping GitHub repository to verify the that the repository exists and the correct webhook exists.
+     *
+     * @param fullRepoName full repository name to subscribe
+     * @return repository model. To more information see {@link GitHubRepositoryModel}
+     * @throws IOException when errors occur when sending a request to Github
+     * @throws SerializationException if response body can not be deserialize to {@link GitHubRepositoryModel}
+     */
+
     public GitHubRepositoryModel pingGithubRepo(final String fullRepoName) throws IOException, SerializationException {
 
         final Request request = new Request.Builder().url(GIT_HUB_ROOT_API_URL + GIT_HUB_REPOS_URL + fullRepoName).get().build();
@@ -49,6 +58,11 @@ public class CustomHttpClient {
         throw new IllegalStateException("Incorrect response code in " + response.toString());
     }
 
+    /**
+     * @param userModel user
+     * @return
+     * @throws IOException
+     */
     public boolean checkAccessTokenForWebhooksOperations(UserModel userModel) throws IOException {
         String credential = Credentials.basic(userModel.getGithubUserName(), userModel.getAccessToken());
         final Request request = new Request.Builder().url(GIT_HUB_ROOT_API_URL + "user")
@@ -57,17 +71,16 @@ public class CustomHttpClient {
         log.info(response.toString());
         if (response.code() == HttpStatus.OK.value()) {
             return true;
-        }
-        else {
+        } else {
             log.warn("Status code: {}", response.code());
             return false;
         }
     }
 
-    public boolean addWebhookToRepo(UserModel userModel, String fullRepoName) throws IOException, SerializationException {
+    public boolean addWebhookToRepo(UserModel userModel, String fullRepoName) throws IOException {
         String apiUrl = GIT_HUB_ROOT_API_URL + GIT_HUB_REPOS_URL + fullRepoName + "/hooks";
 
-        GitHubWebhookConfig webhookConfig = new GitHubWebhookConfig(serverUrl + "/github","json", "0" );
+        GitHubWebhookConfig webhookConfig = new GitHubWebhookConfig(serverUrl + "/github", "json", "0");
         GitHubCreateWebhook createWebhook = new GitHubCreateWebhook("web", true,
                 Collections.singletonList("*"), webhookConfig);
         ObjectMapper mapper = new ObjectMapper();

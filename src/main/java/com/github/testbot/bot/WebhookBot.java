@@ -30,6 +30,13 @@ public class WebhookBot implements BotActions {
     @Autowired
     private UserService userService;
 
+    /**
+     * Service class for handle tam tam events.
+     *
+     * @param bot bot API for interaction with Tam Tam servers
+     * @throws APIException    with errors occur while interacting with API
+     * @throws ClientException if errors occur during the sending of the request
+     */
     public WebhookBot(TamTamBotAPI bot) throws APIException, ClientException {
         this.bot = bot;
         List<BotCommand> commands = Arrays.asList(
@@ -76,6 +83,8 @@ public class WebhookBot implements BotActions {
                 break;
             case (Update.CHAT_TITLE_CHANGED):
                 onChatTitleChanged((ChatTitleChangedUpdate) update);
+            default:
+                log.error("Unrecognized update type on update {}", update);
         }
     }
 
