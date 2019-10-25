@@ -1,5 +1,6 @@
-# TamTamTest
+# TamTamBot
 ---
-### Test API to TamTam bot @testDru
-Test Commit
-2
+### How to use this bot
+Set github access token with scope: `admin:webhook`
+
+![](util_data/github_screen.png)
