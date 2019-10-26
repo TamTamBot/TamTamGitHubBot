@@ -123,7 +123,11 @@ public class WebhookBot implements BotActions {
 
     @Override
     public void onBotAddedToChat(BotAddedToChatUpdate update) {
-        log.info("Sorry, operation not support");
+        try {
+            commandParser.help(update.getUser().getUserId());
+        } catch (APIException | ClientException e) {
+            log.error("Can not send response", e);
+        }
     }
 
     @Override
