@@ -19,11 +19,10 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Predicate;
 
 import static com.github.testbot.constans.BotCommands.HELP;
 import static com.github.testbot.constans.ChatStates.*;
@@ -57,12 +56,16 @@ public class CommandParser implements Parser, Commands {
         if (messageText.startsWith("/")) {
             parseCommand(createdUpdate);
         } else {
-            parseDefaultText(createdUpdate);
+            try {
+                parseDefaultText(createdUpdate);
+            } catch (IOException e) {
+                log.error(e.getMessage());
+            }
         }
     }
 
     @SuppressWarnings("Duplicates")
-    private void parseDefaultText(MessageCreatedUpdate update) throws APIException, ClientException {
+    private void parseDefaultText(MessageCreatedUpdate update) throws APIException, ClientException, IOException {
         final String messageText = update.getMessage().getBody().getText();
         final Long senderId = update.getMessage().getSender().getUserId();
         final UserModel user = userService.getUser(senderId);
@@ -100,11 +103,15 @@ public class CommandParser implements Parser, Commands {
                 break;
             case SUBSCRIBE_TO_REPO:
                 try {
+                    // if the repository already has subscribers, then the webhook for the bot has already been created
                     List<UserModel> githubWebhookUsers = userService.getUsersByGithubRepoName(messageText);
                     GitHubRepositoryModel repository = httpClient.pingGithubRepo(messageText);
                     if (githubWebhookUsers.isEmpty()) {
                         if (user.isLoggedOn()) {
-                            if (httpClient.addWebhookToRepo(user, messageText)) {
+                            Optional<Long> webhookId = httpClient.addWebhookToRepo(user, messageText);
+                            if (webhookId.isPresent()) {
+                                repository.setWebhookId(webhookId.get());
+                                repository.setAccessToken(user.getAccessToken());
                                 subscribeToRepo(senderId, user, repository);
                             } else {
                                 sendSimpleMessage(senderId, "Problem with setting webhook to repo: " + messageText);
@@ -123,6 +130,33 @@ public class CommandParser implements Parser, Commands {
                 } finally {
                     chatState.put(senderId, ChatStates.DEFAULT);
                 }
+                break;
+            case UNSUBSCRIBE_TO_REPO:
+                Set<GitHubRepositoryModel> githubRepositoryModels = user.getGithubRepos();
+                Predicate<GitHubRepositoryModel> forRemove = repo ->
+                        messageText.equals(repo.getFullName()) || messageText.equals(repo.getName());
+                Optional<GitHubRepositoryModel> repositoryModelForRemove = githubRepositoryModels.stream()
+                        .filter(forRemove)
+                        .findFirst();
+                if (repositoryModelForRemove.isPresent()) {
+                    githubRepositoryModels.remove(repositoryModelForRemove.get());
+                    userService.saveUser(user);
+                    sendSimpleMessage(senderId, "Unsubscribed from `" + messageText + "` repository");
+
+                    // delete webhook from repository
+                    List<UserModel> subscribers = userService.getUsersByGithubRepoName(messageText);
+                    if (subscribers.isEmpty()) {
+                        if (httpClient.deleteWebhookFromRepository(repositoryModelForRemove.get())) {
+                            sendSimpleMessage(senderId, "Webhook of `" + messageText + "` repository is deleted");
+                        } else {
+                            log.error("Can not delete webhook from repository: " + messageText);
+                        }
+                    }
+                }
+                else {
+                    sendSimpleMessage(senderId, "You are not subscribed to `" + messageText + "` repository!");
+                }
+                chatState.put(senderId, ChatStates.DEFAULT);
                 break;
             default:
                 help(senderId);
@@ -159,6 +193,10 @@ public class CommandParser implements Parser, Commands {
                 log.info("UPD " + update.toString());
                 chatState.put(senderId, SUBSCRIBE_TO_REPO);
                 sendSimpleMessage(senderId, "Enter full GitHub repository name (username/repository)");
+                break;
+            case UNSUBSCRIBE:
+                chatState.put(senderId, UNSUBSCRIBE_TO_REPO);
+                sendSimpleMessage(senderId, "Enter GitHub repository name for unsubscribe");
                 break;
             case LIST:
                 chatState.put(senderId, ChatStates.DEFAULT);
@@ -205,11 +243,11 @@ public class CommandParser implements Parser, Commands {
         if (userSubscriptions.isEmpty()) {
             builder.append("List of your connected repositories is empty!");
         } else {
-            builder.append("List of your connected repositories:\n\r");
+            builder.append("List of your connected repositories:\n\n");
             user.getGithubRepos().forEach(gitHubRepositoryModel -> {
                 log.info("REPO " + user);
                 builder.append("name: ").append(gitHubRepositoryModel.getFullName()).append("\n\rurl: ")
-                        .append(gitHubRepositoryModel.getHtmlUrl()).append("\n");
+                        .append(gitHubRepositoryModel.getHtmlUrl()).append("\n\n");
             });
         }
         builder.append("\nTo add new repositories use command /subscribe");

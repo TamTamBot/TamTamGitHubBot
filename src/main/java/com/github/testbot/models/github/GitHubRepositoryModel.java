@@ -13,13 +13,13 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode
 public class GitHubRepositoryModel {
+    @JsonProperty("full_name") private String fullName;
     private String name;
-    @JsonProperty("full_name")
-    private String fullName;
     private GitHubUserModel owner;
-    @JsonProperty("html_url")
-    private String htmlUrl;
+    @JsonProperty("html_url") private String htmlUrl;
     private String url;
+    @EqualsAndHashCode.Exclude private Long webhookId;
+    @EqualsAndHashCode.Exclude private String accessToken;
 }
 
 

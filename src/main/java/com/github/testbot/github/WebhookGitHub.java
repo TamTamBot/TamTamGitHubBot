@@ -11,7 +11,6 @@ import com.github.testbot.models.database.UserModel;
 import com.github.testbot.models.github.*;
 import com.github.testbot.services.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -22,17 +21,16 @@ import static com.github.testbot.constans.GitHubConstants.*;
 @Component
 public class WebhookGitHub implements GitHubActions {
 
-    @Autowired
     private UserService userService;
 
     private final TamTamBotAPI bot;
 
-
     private final JacksonSerializer serializer;
 
 
-    public WebhookGitHub(TamTamBotAPI bot, JacksonSerializer serializer) {
+    public WebhookGitHub(TamTamBotAPI bot, UserService userService, JacksonSerializer serializer) {
         this.bot = bot;
+        this.userService = userService;
         this.serializer = serializer;
     }
 
@@ -78,13 +76,13 @@ public class WebhookGitHub implements GitHubActions {
 
     @Override
     public void defaultEvent(GitHubEvents events) {
-        sendMessageToUsers(events);
+        List<UserModel> subscriptions = userService.getUsersByGithubRepoName(events.getRepository().getFullName());
+        sendMessageToUsers(events, subscriptions);
     }
 
     @Override
-    public void sendMessageToUsers(GitHubEvents event) {
+    public void sendMessageToUsers(GitHubEvents event, List<UserModel> users) {
         NewMessageBody body = new NewMessageBody(event.toString(), null, null);
-        List<UserModel> users = userService.getUsersByGithubRepoName(event.getRepository().getFullName());
         users.forEach(user -> {
             try {
                 bot.sendMessage(body).userId(user.getTamTamUserId()).execute();
