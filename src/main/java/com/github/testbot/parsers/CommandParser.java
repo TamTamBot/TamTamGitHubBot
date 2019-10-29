@@ -59,7 +59,7 @@ public class CommandParser implements Parser, Commands {
             try {
                 parseDefaultText(createdUpdate);
             } catch (IOException e) {
-                log.error(e.getMessage());
+                log.error("{} with update {}", e, createdUpdate);
             }
         }
     }
@@ -103,7 +103,9 @@ public class CommandParser implements Parser, Commands {
                 break;
             case SUBSCRIBE_TO_REPO:
                 try {
-                    // if the repository already has subscribers, then the webhook for the bot has already been created
+                    /*
+                    If the repository already has subscribers, then the webhook for the bot has already been created
+                     */
                     List<UserModel> githubWebhookUsers = userService.getUsersByGithubRepoName(messageText);
                     GitHubRepositoryModel repository = httpClient.pingGithubRepo(messageText);
                     if (githubWebhookUsers.isEmpty()) {
@@ -142,8 +144,6 @@ public class CommandParser implements Parser, Commands {
                     githubRepositoryModels.remove(repositoryModelForRemove.get());
                     userService.saveUser(user);
                     sendSimpleMessage(senderId, "Unsubscribed from `" + messageText + "` repository");
-
-                    // delete webhook from repository
                     List<UserModel> subscribers = userService.getUsersByGithubRepoName(messageText);
                     if (subscribers.isEmpty()) {
                         if (httpClient.deleteWebhookFromRepository(repositoryModelForRemove.get())) {

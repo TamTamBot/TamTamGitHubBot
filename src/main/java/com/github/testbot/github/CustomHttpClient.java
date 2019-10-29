@@ -30,8 +30,6 @@ public class CustomHttpClient {
 
     private final OkHttpClient client = new OkHttpClient();
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
     public CustomHttpClient(JacksonSerializer serializer) {
         this.serializer = serializer;
     }
@@ -78,15 +76,15 @@ public class CustomHttpClient {
         }
     }
 
-    public Optional<Long> addWebhookToRepo(UserModel userModel, String fullRepoName) throws IOException {
+    public Optional<Long> addWebhookToRepo(UserModel userModel, String fullRepoName) throws IOException, SerializationException {
         String apiUrl = GIT_HUB_ROOT_API_URL + GIT_HUB_REPOS_URL + fullRepoName + "/hooks";
         GitHubWebhookConfig webhookConfig = new GitHubWebhookConfig(serverUrl + "/github", "json", "0");
         GitHubCreateWebhook createWebhook = new GitHubCreateWebhook("web", true,
                 Collections.singletonList("*"), webhookConfig);
         String json = "";
         try {
-            json = objectMapper.writeValueAsString(createWebhook);
-        } catch (JsonProcessingException e) {
+            json = new String(Objects.requireNonNull(serializer.serialize(createWebhook)));
+        } catch (SerializationException e) {
             e.printStackTrace();
         }
         RequestBody body = RequestBody.create(
@@ -95,7 +93,7 @@ public class CustomHttpClient {
         final Request request = new Request.Builder().url(apiUrl)
                 .post(body).header("Authorization", credential).build();
         Response response = client.newCall(request).execute();
-        Map responseData = objectMapper.readValue(Objects.requireNonNull(response.body()).string(), Map.class);
+        Map responseData = serializer.deserialize(Objects.requireNonNull(response.body()).string(), Map.class);
         log.info(response.toString());
         if (response.code() == HttpStatus.CREATED.value()) {
             log.info("Webhook created successfully.");
