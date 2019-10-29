@@ -65,7 +65,6 @@ distributions {
 
         distTar {
             compression = Compression.GZIP
-            extension = 'tar.gz'
         }
         contents {
             from(shadowJar) {

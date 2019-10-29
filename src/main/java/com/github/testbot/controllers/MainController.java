@@ -36,10 +36,20 @@ public class MainController {
 
     @PostMapping("/github")
     public ResponseEntity<Void> receiveGitHubUpdates(@RequestBody @Valid final String body,
-                                                    @RequestHeader(GitHubConstants.GITHUB_EVENT_NAME_HEADER)
-                                                            String header){
-        log.info("GitHub Body {}",body);
-        webhookGitHub.handleEvent(body, header);
+                                                     @RequestHeader(GitHubConstants.GITHUB_EVENT_NAME_HEADER)
+                                                             String header) {
+        log.info("GitHub Body {}", body);
+        if (header == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        try {
+            webhookGitHub.handleEvent(body, header);
+        } catch (IllegalArgumentException e) {
+            log.error("Incorrect input data {}", e.getMessage(), e);
+        } catch (Exception e) {
+            log.error("Unknown error while handle event");
+        }
         return ResponseEntity.ok().build();
     }
 }
