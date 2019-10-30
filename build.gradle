@@ -34,7 +34,12 @@ if (project.hasProperty('prod')) {
     propertyDrivenProfiles = localProfiles
 }
 
+bootJar {
+    exclude '*.properties'
+}
+
 jar {
+    exclude '*.properties'
     manifest {
         attributes 'Main-Class': 'com.github.testbot.Main'
     }
@@ -55,7 +60,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
-/*
 
 distributions {
 
@@ -68,25 +72,28 @@ distributions {
             compression = Compression.GZIP
         }
         contents {
-            from(shadowJar) {
+            from(bootJar) {
 
                 include "*.jar"
                 fileMode = 0755
             }
             into('config') {  // Contents of this directory are copied by default
                 from 'src/main/resources/'
-                include '*.properties'
+                include 'application.properties'
+//                include 'application-'propertyDrivenProfiles'.properties'
                 dirMode = 0755
                 fileMode = 0644
             }
+            into('scripts'){
+                from 'src/main/scripts'
+                dirMode = 0644
+                fileMode = 0755
+            }
 
-            */
-/*
-            filter(ReplaceTokens, tokens: [act_profile: propertyDrivenProfiles ])
-            filteringCharset = 'UTF-8'*//*
+/*            filter(ReplaceTokens, tokens: [act_profile: propertyDrivenProfiles ])
+            filteringCharset = 'UTF-8'*/
 
         }
     }
 }
-*/
 
