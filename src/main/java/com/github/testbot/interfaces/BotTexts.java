@@ -9,7 +9,9 @@ public interface BotTexts {
             " /" + SET_TOKEN.getCommandName() + "- add GitHub OAuth token for access and subscribing to repositories.\n\r" +
             " /" + SUBSCRIBE.getCommandName() + " - subscribe to GitHub repository update and news.\n\r" +
             " /" + UNSUBSCRIBE.getCommandName() + " - unsubscribe for GitHub repository update and news.\n\r" +
-            " /" + LIST.getCommandName()+ " - list of repositories you are subscribed to.";
+            " /" + DELETE.getCommandName() + " - delete webhook from GitHub repository. All users who have been " +
+            "subscribed to repository will be automatically unsubscribed.\n\r" +
+            " /" + LIST.getCommandName() + " - list of repositories you are subscribed to.";
     String MORE_INFO_CALLBACK_BUTTON = "More information.";
     String PROJECT_HOMEPAGE = "https://github.com/TamTamBot/TamTamTest";
     String HELP_MORE_INFORMATION_TEXT = "For more information you can visit GitHub homepage of our project: "

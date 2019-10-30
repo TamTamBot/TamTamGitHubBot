@@ -19,9 +19,13 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import static com.github.testbot.constans.BotCommands.HELP;
@@ -116,7 +120,8 @@ public class CommandParser implements Parser, Commands {
                                 repository.setAccessToken(user.getAccessToken());
                                 subscribeToRepo(senderId, user, repository);
                             } else {
-                                sendSimpleMessage(senderId, "Problem with setting webhook to repo: " + messageText);
+                                sendSimpleMessage(senderId, "Problem with setting webhook to repo: "
+                                        + messageText);
                             }
                         } else {
                             sendSimpleMessage(senderId,
@@ -134,33 +139,105 @@ public class CommandParser implements Parser, Commands {
                 }
                 break;
             case UNSUBSCRIBE_TO_REPO:
-                Set<GitHubRepositoryModel> githubRepositoryModels = user.getGithubRepos();
-                Predicate<GitHubRepositoryModel> forRemove = repo ->
-                        messageText.equals(repo.getFullName()) || messageText.equals(repo.getName());
-                Optional<GitHubRepositoryModel> repositoryModelForRemove = githubRepositoryModels.stream()
-                        .filter(forRemove)
-                        .findFirst();
+                Optional<GitHubRepositoryModel> repositoryModelForRemove = findRepositoryModel(user, messageText);
                 if (repositoryModelForRemove.isPresent()) {
-                    githubRepositoryModels.remove(repositoryModelForRemove.get());
+                    user.getGithubRepos().remove(repositoryModelForRemove.get());
                     userService.saveUser(user);
                     sendSimpleMessage(senderId, "Unsubscribed from `" + messageText + "` repository");
                     List<UserModel> subscribers = userService.getUsersByGithubRepoName(messageText);
                     if (subscribers.isEmpty()) {
                         if (httpClient.deleteWebhookFromRepository(repositoryModelForRemove.get())) {
-                            sendSimpleMessage(senderId, "Webhook of `" + messageText + "` repository is deleted");
+                            sendSimpleMessage(senderId, "Webhook of `" + messageText +
+                                    "` repository is deleted");
                         } else {
                             log.error("Can not delete webhook from repository: " + messageText);
                         }
                     }
-                }
-                else {
+                } else {
                     sendSimpleMessage(senderId, "You are not subscribed to `" + messageText + "` repository!");
                 }
                 chatState.put(senderId, ChatStates.DEFAULT);
                 break;
+            case DELETE_REPO_TOKEN:
+                Consumer<Optional<GitHubRepositoryModel>> deleteRepositoryConsumer = (gitHubRepositoryModel) -> {
+                    chatState.put(senderId, DELETE_CONFIRMATION);
+                    try {
+                        sendSimpleMessage(senderId, "Are you sure you want to remove webhook " +
+                                "from the repository: " + gitHubRepositoryModel.orElseThrow(
+                                        () -> new IllegalArgumentException("Repository is null")).getHtmlUrl() +
+                                " \n\r" +
+                                "Please enter full repository name again if you are sure.\n\r" +
+                                "We warn you that everyone who is subscribed to your repository " +
+                                "will no longer be able to track it.");
+                    } catch (ClientException | APIException e) {
+                        log.error("Error while sending message to user", e);
+                    }
+                };
+                deleteByConsumer(deleteRepositoryConsumer, user, messageText);
+                break;
+            case DELETE_CONFIRMATION:
+                Consumer<Optional<GitHubRepositoryModel>> confirmRepositoryConsumer = (gitHubRepositoryModel) ->{
+                    try {
+                        if (httpClient.deleteWebhookFromRepository(gitHubRepositoryModel.orElseThrow(
+                                () -> new IllegalArgumentException("Repository is null")))){
+                            userService.getUsersByGithubRepoName(gitHubRepositoryModel.get().getFullName())
+                                    .parallelStream()
+                                    .forEach(u -> {
+                                        u.getGithubRepos().remove(gitHubRepositoryModel.get());
+                                        try {
+                                            sendSimpleMessage(u.getTamTamUserId(), "Webhook has been removed " +
+                                                    "from the repository `" + gitHubRepositoryModel.get().getHtmlUrl()
+                                                    + "` by the owner.");
+                                        } catch (ClientException | APIException e) {
+                                            log.error("Error while sending message to user", e);
+                                        }
+                                    });
+                            sendSimpleMessage(senderId, "Webhook removed from repository `"
+                                    + gitHubRepositoryModel.get().getFullName() + "` successfully.");
+                        } else {
+                            sendSimpleMessage(senderId, "Sorry, webhook not removed from repository `"
+                                    + gitHubRepositoryModel.get().getFullName() + "`. Something went wrong. " +
+                                    "Manually delete it from the repository");
+                        }
+                    } catch (IOException e) {
+                        log.error("Can not send request to github", e);
+                    } catch (APIException | ClientException e) {
+                        log.error("Error while sending message to user", e);
+                    }
+                };
+                deleteByConsumer(confirmRepositoryConsumer,user,messageText);
+                break;
             default:
                 help(senderId);
         }
+    }
+
+    private void deleteByConsumer(Consumer<Optional<GitHubRepositoryModel>> consumer, UserModel user,
+                                  String repositoryName) throws APIException, ClientException {
+        Long senderId = user.getTamTamUserId();
+        Optional<GitHubRepositoryModel> repositoryModel = findRepositoryModel(user, repositoryName);
+        if (repositoryModel.isPresent()) {
+            if (repositoryModel.get().getOwner().getLogin().equals(user.getGithubUserName())) {
+                consumer.accept(repositoryModel);
+                return;
+            } else {
+                sendSimpleMessage(senderId, "You are not repository `" + repositoryName + "` owner.\n\r" +
+                        "You can not delete webhook.");
+            }
+        } else {
+            sendSimpleMessage(senderId, "You are not subscribed to `" + repositoryName + "` repository!");
+        }
+        chatState.put(senderId, ChatStates.DEFAULT);
+
+    }
+
+    private Optional<GitHubRepositoryModel> findRepositoryModel(UserModel user, String repositoryName) {
+        Set<GitHubRepositoryModel> githubRepositoryModels = user.getGithubRepos();
+        Predicate<GitHubRepositoryModel> forRemove = repo ->
+                repositoryName.equals(repo.getFullName()) || repositoryName.equals(repo.getName());
+        return githubRepositoryModels.stream()
+                .filter(forRemove)
+                .findFirst();
     }
 
 
@@ -197,6 +274,10 @@ public class CommandParser implements Parser, Commands {
             case UNSUBSCRIBE:
                 chatState.put(senderId, UNSUBSCRIBE_TO_REPO);
                 sendSimpleMessage(senderId, "Enter GitHub repository name for unsubscribe");
+                break;
+            case DELETE:
+                chatState.put(senderId, DELETE_REPO_TOKEN);
+                sendSimpleMessage(senderId, "Enter GitHub repository name for delete webhook");
                 break;
             case LIST:
                 chatState.put(senderId, ChatStates.DEFAULT);

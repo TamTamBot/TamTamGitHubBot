@@ -100,6 +100,8 @@ public class WebhookBot implements BotActions {
             commandParser.parse(update);
         } catch (APIException | ClientException e) {
             log.error("Can not send response", e);
+        } catch (Exception e){
+            log.error("Some unexpected error", e);
         }
     }
 

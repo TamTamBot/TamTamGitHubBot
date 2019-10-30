@@ -13,7 +13,9 @@ import com.github.testbot.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Optional;
 
 import static com.github.testbot.constans.GitHubConstants.*;
 
@@ -35,36 +37,39 @@ public class WebhookGitHub implements GitHubActions {
     }
 
     @Override
-    public void handleEvent(String body, String eventType) {
+    public void handleEvent(final String body, @NotNull final String eventType) {
+        if (eventType == null) {
+            throw new IllegalArgumentException("Event type can not be null.");
+        }
         try {
             switch (eventType) {
                 case GITHUB_EVENT_TYPE_CREATE:
                     GitHubCreateEvent createEvent = serializer.deserialize(body, GitHubCreateEvent.class);
-                    defaultEvent(createEvent);
+                    defaultEvent(Optional.ofNullable(createEvent));
                     break;
                 case GITHUB_EVENT_TYPE_PUSH:
                     GitHubPushEvent pushEvent = serializer.deserialize(body, GitHubPushEvent.class);
-                    defaultEvent(pushEvent);
+                    defaultEvent(Optional.ofNullable(pushEvent));
                     break;
                 case GITHUB_EVENT_TYPE_COMMIT_COMMENT:
                     GitHubCommitCommentEvent commitCommentEvent =
                             serializer.deserialize(body, GitHubCommitCommentEvent.class);
-                    defaultEvent(commitCommentEvent);
+                    defaultEvent(Optional.ofNullable(commitCommentEvent));
                     break;
                 case GITHUB_EVENT_TYPE_PULL_REQUEST:
                     GitHubPullRequestEvent pullRequestEvent = serializer
                             .deserialize(body, GitHubPullRequestEvent.class);
-                    defaultEvent(pullRequestEvent);
+                    defaultEvent(Optional.ofNullable(pullRequestEvent));
                     break;
                 case GITHUB_EVENT_TYPE_PULL_REQUEST_REVIEW:
                     GitHubPullRequestReviewEvent pullRequestReviewEvent =
                             serializer.deserialize(body, GitHubPullRequestReviewEvent.class);
-                    defaultEvent(pullRequestReviewEvent);
+                    defaultEvent(Optional.ofNullable(pullRequestReviewEvent));
                     break;
                 case GITHUB_EVENT_TYPE_PULL_REQUEST_REVIEW_COMMENT:
                     GitHubPullRequestReviewCommentEvent pullRequestReviewCommentEvent =
                             serializer.deserialize(body, GitHubPullRequestReviewCommentEvent.class);
-                    defaultEvent(pullRequestReviewCommentEvent);
+                    defaultEvent(Optional.ofNullable(pullRequestReviewCommentEvent));
                     break;
                 default:
                     log.info("Unknown command " + eventType);
@@ -75,7 +80,8 @@ public class WebhookGitHub implements GitHubActions {
     }
 
     @Override
-    public void defaultEvent(GitHubEvents events) {
+    public void defaultEvent(@NotNull final Optional<GitHubEvents> optEvent) {
+        GitHubEvents events = optEvent.orElseThrow(() -> new IllegalArgumentException("Event can not be null."));
         List<UserModel> subscriptions = userService.getUsersByGithubRepoName(events.getRepository().getFullName());
         sendMessageToUsers(events, subscriptions);
     }

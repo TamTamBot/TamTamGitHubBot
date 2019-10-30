@@ -3,10 +3,11 @@ package com.github.testbot.constans;
 public enum BotCommands {
 
     HELP ("help", "help command"),
-    SET_TOKEN ("set_token", "Set token for creating webhook on github"),
-    SUBSCRIBE("subscribe", "Subscribe to github repository updates"),
-    UNSUBSCRIBE("unsubscribe", "Unsubscribe from repository updates"),
+    SET_TOKEN ("set_token", "Set token for creating webhook on GitHub"),
+    SUBSCRIBE("subscribe", "Subscribe to GitHub repository updates"),
+    UNSUBSCRIBE("unsubscribe", "Unsubscribe from GitHub repository updates"),
     LIST("list", "List of your connected GitHub repositories"),
+    DELETE("delete", "Delete webhook from GitHub repository"),
     NOT_FOUND ("", "");
 
     private String commandName;
