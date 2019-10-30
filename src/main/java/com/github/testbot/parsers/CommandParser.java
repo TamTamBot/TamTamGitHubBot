@@ -95,7 +95,7 @@ public class CommandParser implements Parser, Commands {
                         user.setLoggedOn(true);
                         userService.saveUser(user);
                     } else {
-                        sendSimpleMessage(senderId, "Bad token :(");
+                        sendSimpleMessage(senderId, "Bad token \uD83D\uDE2D");
                         user.setLoggedOn(false);
                         userService.saveUser(user);
                     }
@@ -267,7 +267,6 @@ public class CommandParser implements Parser, Commands {
                 sendSimpleMessage(senderId, "Enter your GitHub username:");
                 break;
             case SUBSCRIBE:
-                log.info("UPD " + update.toString());
                 chatState.put(senderId, SUBSCRIBE_TO_REPO);
                 sendSimpleMessage(senderId, "Enter full GitHub repository name (username/repository)");
                 break;
@@ -324,15 +323,14 @@ public class CommandParser implements Parser, Commands {
         if (userSubscriptions.isEmpty()) {
             builder.append("List of your connected repositories is empty!");
         } else {
-            builder.append("List of your connected repositories:\n\n");
+            builder.append("*List of your connected repositories:*\n\n");
             user.getGithubRepos().forEach(gitHubRepositoryModel -> {
                 log.info("REPO " + user);
-                builder.append("name: ").append(gitHubRepositoryModel.getFullName()).append("\n\rurl: ")
+                builder.append("`name:`  ").append(gitHubRepositoryModel.getFullName()).append("\n\r`url:`  ")
                         .append(gitHubRepositoryModel.getHtmlUrl()).append("\n\n");
             });
         }
         builder.append("\nTo add new repositories use command /subscribe");
-        log.info("LIST " + builder.toString());
         sendSimpleMessage(senderId, builder.toString());
     }
 

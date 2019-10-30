@@ -2,7 +2,7 @@ package com.github.testbot.constans;
 
 public enum BotCommands {
 
-    HELP ("help", "help command"),
+    HELP ("help", "Help command"),
     SET_TOKEN ("set_token", "Set token for creating webhook on GitHub"),
     SUBSCRIBE("subscribe", "Subscribe to GitHub repository updates"),
     UNSUBSCRIBE("unsubscribe", "Unsubscribe from GitHub repository updates"),

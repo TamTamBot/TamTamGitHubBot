@@ -5,12 +5,8 @@ import com.github.testbot.bot.WebhookBot;
 import com.github.testbot.constans.GitHubConstants;
 import com.github.testbot.github.WebhookGitHub;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -27,6 +23,10 @@ public class MainController {
         this.webhookGitHub = webhookGitHub;
     }
 
+    @GetMapping("/healthcheck")
+    public String healthcheckEndpoint() {
+        return "OK!";
+    }
 
     @PostMapping("/tamtam")
     public ResponseEntity<Void> receiveBotUpdates(@RequestBody @Valid final Update update) {
@@ -38,7 +38,7 @@ public class MainController {
     public ResponseEntity<Void> receiveGitHubUpdates(@RequestBody @Valid final String body,
                                                      @RequestHeader(GitHubConstants.GITHUB_EVENT_NAME_HEADER)
                                                              String header) {
-        log.info("GitHub Body {}", body);
+        log.info("New update from github\uD83C\uDF44");
         if (header == null) {
             return ResponseEntity.badRequest().build();
         }
