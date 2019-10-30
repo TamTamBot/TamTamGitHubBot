@@ -59,7 +59,7 @@ public class CommandParser implements Parser, Commands {
             try {
                 parseDefaultText(createdUpdate);
             } catch (IOException e) {
-                log.error("{} with update {}", e, createdUpdate);
+                log.error("{} with update", e.getMessage(), e);
             }
         }
     }
