@@ -8,6 +8,7 @@ public interface BotTexts {
     String HELP_COMMAND_TEXT = "List of all the commands:\n\r" +
             " /" + SET_TOKEN.getCommandName() + "- add GitHub OAuth token for access and subscribing to repositories.\n\r" +
             " /" + SUBSCRIBE.getCommandName() + " - subscribe to GitHub repository update and news.\n\r" +
+            " /" + UNSUBSCRIBE.getCommandName() + " - unsubscribe for GitHub repository update and news.\n\r" +
             " /" + LIST.getCommandName()+ " - list of repositories you are subscribed to.";
     String MORE_INFO_CALLBACK_BUTTON = "More information.";
     String PROJECT_HOMEPAGE = "https://github.com/TamTamBot/TamTamTest";

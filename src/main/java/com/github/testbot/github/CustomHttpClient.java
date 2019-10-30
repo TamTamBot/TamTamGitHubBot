@@ -15,8 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.*;
 
 import static com.github.testbot.constans.GitHubConstants.*;
 
@@ -77,17 +76,15 @@ public class CustomHttpClient {
         }
     }
 
-    public boolean addWebhookToRepo(UserModel userModel, String fullRepoName) throws IOException {
+    public Optional<Long> addWebhookToRepo(UserModel userModel, String fullRepoName) throws IOException, SerializationException {
         String apiUrl = GIT_HUB_ROOT_API_URL + GIT_HUB_REPOS_URL + fullRepoName + "/hooks";
-
         GitHubWebhookConfig webhookConfig = new GitHubWebhookConfig(serverUrl + "/github", "json", "0");
         GitHubCreateWebhook createWebhook = new GitHubCreateWebhook("web", true,
                 Collections.singletonList("*"), webhookConfig);
-        ObjectMapper mapper = new ObjectMapper();
         String json = "";
         try {
-            json = mapper.writeValueAsString(createWebhook);
-        } catch (JsonProcessingException e) {
+            json = new String(Objects.requireNonNull(serializer.serialize(createWebhook)));
+        } catch (SerializationException e) {
             e.printStackTrace();
         }
         RequestBody body = RequestBody.create(
@@ -96,17 +93,28 @@ public class CustomHttpClient {
         final Request request = new Request.Builder().url(apiUrl)
                 .post(body).header("Authorization", credential).build();
         Response response = client.newCall(request).execute();
+        Map responseData = serializer.deserialize(Objects.requireNonNull(response.body()).string(), Map.class);
         log.info(response.toString());
         if (response.code() == HttpStatus.CREATED.value()) {
             log.info("Webhook created successfully.");
-            return true;
+            Long webhookId = Long.parseLong(String.valueOf(responseData.get("id")));
+            return Optional.of(webhookId);
         } else if (response.code() == HttpStatus.UNPROCESSABLE_ENTITY.value()) {
             log.info("Webhook already created.");
-            return true;
+            return Optional.empty();
         } else {
             log.warn("Status code: {}", response.code());
-            return false;
+            return Optional.empty();
         }
+    }
+
+    public boolean deleteWebhookFromRepository(GitHubRepositoryModel repoModel) throws IOException {
+        String deleteUrl = GIT_HUB_ROOT_API_URL + GIT_HUB_REPOS_URL + repoModel.getFullName() + "/hooks/" + repoModel.getWebhookId();
+        String credential = Credentials.basic(repoModel.getOwner().getLogin(), repoModel.getAccessToken());
+        final Request request = new Request.Builder().url(deleteUrl)
+                .delete().header("Authorization", credential).build();
+        Response response = client.newCall(request).execute();
+        return response.code() == HttpStatus.NO_CONTENT.value();
     }
 }
 

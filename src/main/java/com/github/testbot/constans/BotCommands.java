@@ -4,7 +4,8 @@ public enum BotCommands {
 
     HELP ("help", "help command"),
     SET_TOKEN ("set_token", "Set token for creating webhook on github"),
-    SUBSCRIBE("subscribe", "Subscribe to github repo news"),
+    SUBSCRIBE("subscribe", "Subscribe to github repository updates"),
+    UNSUBSCRIBE("unsubscribe", "Unsubscribe from repository updates"),
     LIST("list", "List of your connected GitHub repositories"),
     NOT_FOUND ("", "");
 

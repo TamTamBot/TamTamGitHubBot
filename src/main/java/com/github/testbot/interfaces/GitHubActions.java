@@ -1,6 +1,9 @@
 package com.github.testbot.interfaces;
 
+import com.github.testbot.models.database.UserModel;
 import com.github.testbot.models.github.*;
+
+import java.util.List;
 
 public interface GitHubActions {
 
@@ -27,6 +30,6 @@ public interface GitHubActions {
         throw new UnsupportedOperationException("Sorry, operation not support");
     }
 
-    void sendMessageToUsers(GitHubEvents event);
+    void sendMessageToUsers(GitHubEvents event, List<UserModel> users);
 
 }
