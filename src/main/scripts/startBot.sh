@@ -5,7 +5,7 @@ scriptFolred=./scripts/
 
 function start {
   cd ..
-  java -Dspring.config.location=file:config/ -jar testbot-0.3.jar &
+  nohup java -Dspring.config.location=file:config/ -jar testbot-0.3.jar &
   PID=$!
   echo $PID > "$scriptFolred$filename"
 }
