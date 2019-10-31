@@ -43,6 +43,7 @@ public class WebhookBot implements BotActions {
                 new BotCommand(SET_TOKEN.getCommandName()).description(SET_TOKEN.getDescription()),
                 new BotCommand(SUBSCRIBE.getCommandName()).description(SUBSCRIBE.getDescription()),
                 new BotCommand(UNSUBSCRIBE.getCommandName()).description(UNSUBSCRIBE.getDescription()),
+                new BotCommand(DELETE.getCommandName()).description(DELETE.getDescription()),
                 new BotCommand(LIST.getCommandName()).description(LIST.getDescription()),
                 new BotCommand(HELP.getCommandName()).description(HELP.getDescription()));
         bot.editMyInfo(new BotPatch().name("GithubNotifyBot").commands(commands)).execute();

@@ -36,6 +36,4 @@ function mainFunc {
   esac
 }
 
-
-
 mainFunc
