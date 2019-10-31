@@ -184,6 +184,7 @@ public class CommandParser implements Parser, Commands {
                                     .parallelStream()
                                     .forEach(u -> {
                                         u.getGithubRepos().remove(gitHubRepositoryModel.get());
+                                        userService.saveUser(u);
                                         try {
                                             sendSimpleMessage(u.getTamTamUserId(), "Webhook has been removed " +
                                                     "from the repository `" + gitHubRepositoryModel.get().getHtmlUrl()
