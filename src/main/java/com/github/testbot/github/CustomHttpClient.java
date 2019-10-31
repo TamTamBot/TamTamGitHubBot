@@ -58,11 +58,11 @@ public class CustomHttpClient {
     }
 
     /**
-     * @param userModel user
-     * @return
-     * @throws IOException
+     * @param userModel TamTamUser for check access token
+     * @return is the token correct
+     * @throws IOException if we can not send request to GitHub
      */
-    public boolean checkAccessTokenForWebhooksOperations(UserModel userModel) throws IOException {
+    public boolean checkAccessTokenForWebhooksOperations(final UserModel userModel) throws IOException {
         String credential = Credentials.basic(userModel.getGithubUserName(), userModel.getAccessToken());
         final Request request = new Request.Builder().url(GIT_HUB_ROOT_API_URL + "user")
                 .get().header("Authorization", credential).build();
@@ -76,7 +76,7 @@ public class CustomHttpClient {
         }
     }
 
-    public Optional<Long> addWebhookToRepo(UserModel userModel, String fullRepoName) throws IOException, SerializationException {
+    public Optional<Long> addWebhookToRepo(final UserModel userModel, final String fullRepoName) throws IOException, SerializationException {
         String apiUrl = GIT_HUB_ROOT_API_URL + GIT_HUB_REPOS_URL + fullRepoName + "/hooks";
         GitHubWebhookConfig webhookConfig = new GitHubWebhookConfig(serverUrl + "/github", "json", "0");
         GitHubCreateWebhook createWebhook = new GitHubCreateWebhook("web", true,
