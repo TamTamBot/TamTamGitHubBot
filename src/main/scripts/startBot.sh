@@ -32,7 +32,7 @@ function mainFunc {
     start
     ;;
   *)
-    echo "Sorry, command ${command} not found."
+    echo "Sorry, command ${command} not found. Available commands: start | stop | restart "
   esac
 }
 
