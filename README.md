@@ -21,7 +21,7 @@ Supported GitHub actions for which notifications come:
 Getting Started
 ---
 
-You can find this bot on [TamTam]((https://tamtam.chat/)) by the name `@testGitBot` or by clicking on the [link](https://tt.me/testGitBot).
+You can find this bot on [TamTam]((https://tamtam.chat/)) by the name `@GitBot` or by clicking on the [link](https://tt.me/testGitBot).
 
 Getting Help
 ---
